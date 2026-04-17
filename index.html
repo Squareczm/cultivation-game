@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>职场修仙模拟器</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=ZCOOL+QingKe+HuangYou&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #1a1a2e;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'ZCOOL QingKe HuangYou', 'VT323', monospace;
+  overflow: hidden;
+}
+
+.machine {
+  width: 420px;
+  max-width: 95vw;
+  background: linear-gradient(145deg, #2d2d3f, #1e1e30);
+  border-radius: 32px;
+  padding: 24px 20px 28px;
+  box-shadow:
+    0 0 0 3px #3a3a50,
+    0 0 0 6px #15152a,
+    0 20px 60px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  position: relative;
+}
+
+.machine-label {
+  text-align: center;
+  color: #6a6a8a;
+  font-size: 11px;
+  letter-spacing: 4px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.machine-sublabel {
+  text-align: center;
+  color: #4a4a6a;
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+
+.screen-bezel {
+  background: #0d0d15;
+  border-radius: 12px;
+  padding: 8px;
+  margin-bottom: 20px;
+  box-shadow:
+    inset 0 2px 8px rgba(0,0,0,0.8),
+    0 1px 0 rgba(255,255,255,0.03);
+}
+
+.screen {
+  background: #0a0a0a;
+  border-radius: 8px;
+  padding: 16px;
+  min-height: 340px;
+  max-height: 340px;
+  overflow-y: auto;
+  position: relative;
+  color: #ffb000;
+  font-size: 14px;
+  line-height: 1.7;
+  text-shadow: 0 0 8px rgba(255,176,0,0.4);
+}
+
+.screen::-webkit-scrollbar { width: 4px; }
+.screen::-webkit-scrollbar-track { background: transparent; }
+.screen::-webkit-scrollbar-thumb { background: #ffb00030; border-radius: 2px; }
+
+.screen::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0.15) 0px,
+    rgba(0,0,0,0.15) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+  border-radius: 8px;
+  z-index: 1;
+}
+
+.screen::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
+  pointer-events: none;
+  border-radius: 8px;
+  z-index: 2;
+}
+
+.screen > * { position: relative; z-index: 3; }
+
+.stats-bar {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #cc8800;
+  border-bottom: 1px dashed #ffb00030;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.title-art {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #ffb000;
+}
+
+.title-art .big {
+  font-size: 22px;
+  letter-spacing: 4px;
+  margin: 12px 0;
+}
+
+.scene-title {
+  text-align: center;
+  margin: 8px 0;
+  font-size: 13px;
+  color: #cc8800;
+}
+
+.scene-flavor {
+  text-align: center;
+  font-size: 12px;
+  color: #996600;
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+.narrative {
+  margin: 8px 0 12px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.divider {
+  text-align: center;
+  color: #ffb00040;
+  margin: 8px 0;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+.choice {
+  margin: 6px 0;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.15s;
+}
+
+.choice:hover, .choice.selected {
+  color: #ffe080;
+  text-shadow: 0 0 12px rgba(255,224,128,0.6);
+}
+
+.choice .key {
+  display: inline-block;
+  width: 20px;
+  color: #ff8800;
+}
+
+.result-text {
+  margin: 8px 0;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.result-text .gain { color: #44dd44; text-shadow: 0 0 6px rgba(68,221,68,0.4); }
+.result-text .lose { color: #ff4444; text-shadow: 0 0 6px rgba(255,68,68,0.4); }
+.result-text .event { color: #44bbff; text-shadow: 0 0 6px rgba(68,187,255,0.4); }
+
+.prompt {
+  text-align: center;
+  font-size: 11px;
+  color: #996600;
+  margin-top: 12px;
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 8px;
+}
+
+.dpad {
+  display: grid;
+  grid-template-columns: 40px 40px 40px;
+  grid-template-rows: 40px 40px 40px;
+  gap: 2px;
+}
+
+.dpad-btn {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(145deg, #3a3a50, #25253a);
+  border: 1px solid #4a4a60;
+  border-radius: 6px;
+  color: #8888aa;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dpad-btn:active {
+  background: linear-gradient(145deg, #25253a, #3a3a50);
+  transform: scale(0.95);
+}
+
+.dpad-btn.empty { visibility: hidden; }
+.dpad-btn.ok { font-size: 11px; letter-spacing: 1px; font-weight: bold; }
+
+.ab-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.ab-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s;
+  font-family: 'VT323', monospace;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ab-btn:active { transform: scale(0.9); }
+
+.ab-btn.btn-a {
+  background: linear-gradient(145deg, #cc3333, #992222);
+  border-color: #ff4444;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(255,68,68,0.3);
+}
+
+.ab-btn.btn-b {
+  background: linear-gradient(145deg, #2255aa, #113377);
+  border-color: #3377dd;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(51,119,221,0.3);
+}
+
+.btn-label {
+  font-size: 9px;
+  color: #6a6a8a;
+  text-align: center;
+  margin-top: 2px;
+  letter-spacing: 1px;
+}
+
+.footer-info {
+  text-align: center;
+  color: #3a3a50;
+  font-size: 9px;
+  margin-top: 16px;
+  letter-spacing: 1px;
+}
+
+.realm-up {
+  text-align: center;
+  font-size: 16px;
+  color: #ffdd44;
+  text-shadow: 0 0 16px rgba(255,221,68,0.8);
+  margin: 16px 0;
+  animation: glow 1s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from { text-shadow: 0 0 8px rgba(255,221,68,0.4); }
+  to { text-shadow: 0 0 20px rgba(255,221,68,1); }
+}
+
+.battle-stats {
+  font-size: 12px;
+  margin: 8px 0;
+  line-height: 1.6;
+  color: #cc8800;
+}
+
+.ending-title {
+  text-align: center;
+  font-size: 18px;
+  margin: 16px 0;
+  letter-spacing: 4px;
+}
+
+.ending-summary {
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 12px 0;
+}
+
+.share-btn {
+  display: block;
+  text-align: center;
+  margin: 12px auto;
+  padding: 8px 16px;
+  background: #ffb00020;
+  border: 1px dashed #ffb00060;
+  color: #ffb000;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.share-btn:hover { background: #ffb00030; }
+</style>
+</head>
+<body>
+
+<div class="machine">
+  <div class="machine-label">XIUXIAN CORP GX-2026</div>
+  <div class="machine-sublabel">CN &middot; AMBER CRT &middot; CULTIVATION ENGINE</div>
+
+  <div class="screen-bezel">
+    <div class="screen" id="screen"></div>
+  </div>
+
+  <div class="controls">
+    <div class="dpad">
+      <div class="dpad-btn empty"></div>
+      <div class="dpad-btn" onclick="handleInput('up')">&#9650;</div>
+      <div class="dpad-btn empty"></div>
+      <div class="dpad-btn" onclick="handleInput('left')">&#9664;</div>
+      <div class="dpad-btn ok" onclick="handleInput('ok')">OK</div>
+      <div class="dpad-btn" onclick="handleInput('right')">&#9654;</div>
+      <div class="dpad-btn empty"></div>
+      <div class="dpad-btn" onclick="handleInput('down')">&#9660;</div>
+      <div class="dpad-btn empty"></div>
+    </div>
+    <div class="ab-buttons">
+      <div>
+        <div class="ab-btn btn-a" onclick="handleInput('a')">A</div>
+        <div class="btn-label">A 确认</div>
+      </div>
+      <div>
+        <div class="ab-btn btn-b" onclick="handleInput('b')">B</div>
+        <div class="btn-label">B 返回</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-info">v1.0 &middot; 修仙需谨慎 &middot; 摸鱼有风险</div>
+</div>
+
+<script>
+const REALMS = [
+  { name: '练气期', title: '实习生', exp: 0 },
+  { name: '筑基期', title: '初级工程师', exp: 100 },
+  { name: '结丹期', title: '高级工程师', exp: 280 },
+  { name: '元婴期', title: '技术主管', exp: 520 },
+  { name: '化神期', title: '架构师', exp: 850 },
+  { name: '大乘期', title: '技术总监', exp: 1300 },
+  { name: '渡劫期', title: 'CTO', exp: 2000 },
+];
+
+const state = {
+  screen: 'title',
+  hp: 100,
+  maxHp: 100,
+  exp: 0,
+  money: 0,
+  connections: 0,
+  slacking: 0,
+  realm: 0,
+  day: 1,
+  events: [],
+  currentEvent: null,
+  selectedChoice: 0,
+  phase: 'choose',
+  resultText: '',
+  ending: null,
+  totalChoices: 0,
+  highlights: [],
+};
+
+const EVENTS = [
+  {
+    id: 'req_change',
+    title: '-- 遭遇战 --',
+    monster: '「需求变更兽」',
+    flavor: '"这里再改一下就行了"',
+    text: '产品经理凌晨发来消息，需求文档被推翻重写。你打开电脑，发现改动涉及三个核心模块。',
+    choices: [
+      { text: '连夜重构，用设计模式优雅应对', effects: { exp: 25, hp: -20, money: 5 }, result: '你用策略模式完美隔离了变更。经验大涨，但黑眼圈更深了。', tag: '+25修为 -20精力' },
+      { text: '先摸会鱼，明天再说', effects: { slacking: 10, hp: 5, exp: 5 }, result: '你打开B站看了两小时，第二天发现需求又改回去了。有时候摸鱼才是最优解。', tag: '+10摸鱼 +5精力' },
+    ]
+  },
+  {
+    id: 'perf_review',
+    title: '-- 雷劫降临 --',
+    monster: '「绩效考核劫」',
+    flavor: '"请做好自评"',
+    text: '季度绩效考核来了。你的KPI完成了78%，但做了两个没在KPI里的技术改进。领导让你自评。',
+    choices: [
+      { text: '如实汇报，展示技术深度', effects: { exp: 20, connections: 5, money: 10 }, result: '领导意外地认可了你的技术判断。有时候诚实本身就是一种修为。', tag: '+20修为 +5人脉' },
+      { text: '包装一下，把KPI外的工作说成KPI达成', effects: { exp: 10, money: 15, connections: -5 }, result: '领导没深究，绩效过了。但组里那个较真的同事似乎看出了什么。', tag: '+15灵石 -5人脉' },
+    ]
+  },
+  {
+    id: 'meeting',
+    title: '-- 精神攻击 --',
+    monster: '「无效会议魔」',
+    flavor: '"我们对齐一下"',
+    text: '下午两点，一个没有议程的两小时会议。参会人12个，其中8个全程静音。第40分钟时，有人问了一个会前邮件里已经回答过的问题。',
+    choices: [
+      { text: '主动接管会议，10分钟内结束', effects: { exp: 15, connections: 10, hp: -5 }, result: '你整理了三个待办和两个结论，终结了会议。有人在群里发了个大拇指，你感觉修为精进。', tag: '+15修为 +10人脉' },
+      { text: '静音摸鱼，偷偷写代码', effects: { slacking: 8, exp: 10, hp: 5 }, result: '你趁机修了两个bug。会议结束时你说"我没问题"。完美隐身。', tag: '+10修为 +8摸鱼' },
+    ]
+  },
+  {
+    id: 'oncall',
+    title: '-- 夜袭 --',
+    monster: '「凌晨告警妖」',
+    flavor: '"P0 告警：服务不可用"',
+    text: '凌晨3点，手机疯狂震动。线上P0故障，用户量暴跌。值班群里已经@了你三次。',
+    choices: [
+      { text: '秒起床，远程定位并修复', effects: { exp: 30, connections: 15, hp: -25, money: 10 }, result: '你在47分钟内定位到是缓存击穿，紧急上线热修复。CTO在群里说了句"不错"。这两个字价值千金。', tag: '+30修为 +15人脉 -25精力' },
+      { text: '装没看到，等白天再处理', effects: { hp: 10, connections: -15, slacking: 15 }, result: '第二天到公司发现已经有人帮你处理了，但你的名字上了oncall黑名单。有些修为，逃不掉的。', tag: '-15人脉 +15摸鱼' },
+    ]
+  },
+  {
+    id: 'side_project',
+    title: '-- 秘境发现 --',
+    monster: '「开源秘境」',
+    flavor: '"Star 数：0"',
+    text: '你发现了一个有潜力的开源项目方向。如果成功，可能带来大量关注。但需要投入业余时间。',
+    choices: [
+      { text: '全力投入，周末都用来写代码', effects: { exp: 35, connections: 20, hp: -30, money: -5 }, result: '三周后项目拿到200个Star。有猎头开始联系你。代价是错过了三次朋友聚会和一个潜水行程。', tag: '+35修为 +20人脉 -30精力' },
+      { text: '随缘参与，不影响生活节奏', effects: { exp: 10, hp: 10, slacking: 5 }, result: '你提了几个PR，写了点文档。项目缓慢成长。周末去爬了山，状态不错。', tag: '+10修为 +10精力' },
+    ]
+  },
+  {
+    id: 'office_politics',
+    title: '-- 心魔试炼 --',
+    monster: '「办公室政治魔」',
+    flavor: '"你站哪边？"',
+    text: '技术总监和产品VP在架构方案上产生分歧。两边都在私下拉人。你的直属leader暗示你应该支持技术总监。',
+    choices: [
+      { text: '写一份客观的技术评估，两边都发', effects: { exp: 20, connections: -5, money: 0 }, result: '两边都觉得你"不够意思"，但CEO看到了你的评估。有时候不站队本身就是一种站队。', tag: '+20修为 -5人脉' },
+      { text: '跟直属leader走', effects: { connections: 15, exp: 5, money: 5 }, result: '技术总监的方案通过了。你获得了信任，但也被打上了"某某的人"的标签。', tag: '+15人脉 +5灵石' },
+    ]
+  },
+  {
+    id: 'tech_talk',
+    title: '-- 机缘降临 --',
+    monster: '「技术分享会」',
+    flavor: '"有人愿意讲吗？"',
+    text: '部门要搞技术分享会，leader在群里问谁愿意讲。沉默了30秒。你最近刚好研究了一个有意思的方向。',
+    choices: [
+      { text: '举手，准备一个硬核分享', effects: { exp: 25, connections: 15, hp: -10 }, result: '你讲了40分钟，Q&A环节来了5个好问题。会后有三个人加了你微信。知识分享是修仙最快的路。', tag: '+25修为 +15人脉' },
+      { text: '继续沉默，让别人上', effects: { hp: 5, slacking: 5 }, result: '最后没人讲，分享会取消了。你松了口气。但也错过了一次机缘。', tag: '+5精力 +5摸鱼' },
+    ]
+  },
+  {
+    id: 'burnout',
+    title: '-- 走火入魔 --',
+    monster: '「倦怠之劫」',
+    flavor: '"不想上班"',
+    text: '连续加班两周后，你周一早上躺在床上，盯着天花板。闹钟响了三次。你知道不是生病，是累了。真的累了。',
+    choices: [
+      { text: '请一天假，去海边走走', effects: { hp: 30, exp: 5, money: -5, slacking: 5 }, result: '你坐在海边看了一下午浪。什么都没想。回来后发现代码看起来没那么讨厌了。修仙也需要休息。', tag: '+30精力 +5修为' },
+      { text: '灌一杯咖啡，硬撑', effects: { hp: -15, exp: 10 }, result: '你撑过了这一天，但下午开始头疼。晚上回家倒在沙发上就睡着了。苦修也是修，但代价不小。', tag: '-15精力 +10修为' },
+    ]
+  },
+  {
+    id: 'headhunter',
+    title: '-- 外道诱惑 --',
+    monster: '「猎头蛊惑术」',
+    flavor: '"方便聊聊吗？"',
+    text: '一个猎头在领英上联系你，对面是竞对公司，Title高一级，薪资涨30%。但你现在的项目刚到关键期。',
+    choices: [
+      { text: '去聊聊，不一定跳但看看行情', effects: { connections: 10, money: 5, exp: 5 }, result: '面了两轮，拿到了offer但没去。不过你知道了自己的市场价。知己知彼，修仙之道。', tag: '+10人脉 +5灵石' },
+      { text: '婉拒，专注当前项目', effects: { exp: 20, connections: 5 }, result: '项目三个月后上线，你拿到了年度优秀员工。专注力本身就是修为。', tag: '+20修为 +5人脉' },
+    ]
+  },
+  {
+    id: 'code_review',
+    title: '-- 论道切磋 --',
+    monster: '「代码审查仙」',
+    flavor: '"这里为什么这样写？"',
+    text: '你提交的PR被一个资深同事留了28条comment。有些确实是问题，有些你觉得是风格偏好。',
+    choices: [
+      { text: '逐条认真回复，该改改，该解释解释', effects: { exp: 20, connections: 10, hp: -10 }, result: '来回三轮后PR合并了。那个同事后来私聊说"你的回复质量很高"。一次好的Code Review抵十次技术分享。', tag: '+20修为 +10人脉' },
+      { text: '全部Resolve，备注"已修改"', effects: { exp: 5, connections: -10, slacking: 5 }, result: 'PR快速合并了，但那个同事再也没认真Review过你的代码。你失去了一个免费的师父。', tag: '+5修为 -10人脉' },
+    ]
+  },
+  {
+    id: 'ai_tool',
+    title: '-- 法宝降世 --',
+    monster: '「AI编码神器」',
+    flavor: '"Tab Tab Tab"',
+    text: '公司引入了AI编码助手。你发现它能自动完成60%的样板代码，但偶尔会生成看起来对但逻辑有坑的代码。',
+    choices: [
+      { text: '深度使用，但每行AI代码都认真Review', effects: { exp: 25, hp: -5, money: 10 }, result: '效率确实提升了，你用省下来的时间去理解了系统架构。AI是法宝，但驾驭法宝需要修为。', tag: '+25修为 +10灵石' },
+      { text: '全盘接受AI生成的代码，追求速度', effects: { exp: 5, money: 15, hp: 5, slacking: 10 }, result: '提测速度翻倍，但两周后线上出了一个AI生成的边界条件bug。Tech Lead在复盘会上看着你。', tag: '+15灵石 +10摸鱼' },
+    ]
+  },
+  {
+    id: 'mentor',
+    title: '-- 仙缘际会 --',
+    monster: '「隐世高人」',
+    flavor: '"年轻人，我看你骨骼清奇"',
+    text: '一个即将离职的Staff Engineer约你吃饭。席间他说："你技术不差，但只会技术。这个行业到了某个层级，技术只占30%。"',
+    choices: [
+      { text: '虚心请教，问他另外70%是什么', effects: { exp: 30, connections: 20, hp: -5 }, result: '他说了三个词：判断力、沟通、取舍。饭后你在备忘录里写了很久。有些话，五年后才会真正听懂。', tag: '+30修为 +20人脉' },
+      { text: '"我就是喜欢纯技术"', effects: { exp: 10, connections: -5 }, result: '他笑了笑没再说什么。两年后你在同一个职级原地踏步时，想起了这顿饭。', tag: '+10修为 -5人脉' },
+    ]
+  },
+  {
+    id: 'legacy_code',
+    title: '-- 上古遗迹 --',
+    monster: '「祖传代码阵」',
+    flavor: '"这段代码不要动"',
+    text: '你被分配去维护一个五年前的模块。没有文档，没有测试，注释写着"临时方案TODO"。原作者已经离职两年了。',
+    choices: [
+      { text: '先写测试覆盖，再逐步重构', effects: { exp: 25, hp: -15, money: 5 }, result: '花了两周写完测试，发现了三个隐藏bug。重构后模块性能提升40%。最难的修炼往往回报最大。', tag: '+25修为 -15精力' },
+      { text: '不动核心逻辑，只在外面包一层', effects: { exp: 10, hp: 5, slacking: 5 }, result: '代码能跑，需求能交。但你知道那个定时炸弹还在里面。有些债，迟早要还。', tag: '+10修为 +5摸鱼' },
+    ]
+  },
+  {
+    id: 'lunch',
+    title: '-- 日常修炼 --',
+    monster: '「午餐选择题」',
+    flavor: '"今天吃什么？"',
+    text: '中午了。同事叫你一起去新开的日料店，人均80。你看了看工资条，又看了看楼下15块的沙县。',
+    choices: [
+      { text: '去日料，社交也是投资', effects: { connections: 10, money: -10, hp: 5 }, result: '聊天中得知隔壁组在用你一直想学的技术栈。回来后要到了他们的设计文档。人脉就是信息差。', tag: '+10人脉 -10灵石' },
+      { text: '沙县解决，把钱存起来', effects: { money: 10, hp: 5, slacking: 3 }, result: '拌面加蛋，经典配置。省下来的钱你买了一本技术书。修仙不必铺张。', tag: '+10灵石 +5精力' },
+    ]
+  },
+  {
+    id: 'weekend',
+    title: '-- 闭关修炼 --',
+    monster: '「周末时间兽」',
+    flavor: '"这周末有空吗？"',
+    text: '周五下午，你面前有两个选项：周末参加一个技术黑客松，或者去学一次潜水体验课。',
+    choices: [
+      { text: '去黑客松，和陌生人组队做项目', effects: { exp: 20, connections: 15, hp: -15 }, result: '48小时没睡做了个AI小工具，虽然没拿奖，但认识了三个很强的人。有时候过程比结果重要。', tag: '+20修为 +15人脉 -15精力' },
+      { text: '去潜水，换个世界待一会', effects: { hp: 25, exp: 5, slacking: 5 }, result: '水下15米，没有消息通知。你看着珊瑚和鱼群，忽然觉得那些代码bug没那么重要了。心境提升。', tag: '+25精力 +5修为' },
+    ]
+  },
+];
+
+const TRIBULATIONS = [
+  {
+    title: '== 渡劫：年终述职 ==',
+    text: '年度述职来了。你需要在15分钟内向VP汇报一年的成果。PPT只有5页。',
+    successText: '你用数据说话，每页都有结论。VP频频点头。渡劫成功，境界提升！',
+    failText: '你准备了30页PPT，讲到第8页被打断。VP说"说重点"。劫雷偏了，修为受损。',
+    threshold: 0.5,
+  },
+  {
+    title: '== 渡劫：架构评审 ==',
+    text: '你的方案要在架构委员会上过审。台下坐着五个P9。你感到一股无形的压力。',
+    successText: '方案经受住了所有质疑。首席架构师说了句"考虑得很周全"。渡劫成功！',
+    failText: '第三个问题你答不上来。会后leader说"下次准备充分点"。劫雷反噬。',
+    threshold: 0.55,
+  },
+  {
+    title: '== 渡劫：带团队 ==',
+    text: '你被提拔为团队负责人。但团队里有一个比你资历深的老员工，他并不服你。',
+    successText: '你用实力和真诚赢得了信任。三个月后，那个老员工成了你最可靠的帮手。修为大进！',
+    failText: '你试图用权威压人，团队氛围急剧恶化。两个月后你被调回IC岗。渡劫失败。',
+    threshold: 0.6,
+  },
+];
+
+const ENDINGS = {
+  ascend: {
+    title: '飞 升 成 功',
+    subtitle: '财务自由 &middot; 人间逍遥',
+    text: '你完成了从实习生到CTO的全部修炼。站在写字楼顶层，你回望这段旅程。每一次加班、每一次选择、每一次摸鱼和每一次拼命，都是修行的一部分。你终于明白：所谓修仙，不过是认真活过每一天。',
+  },
+  burnout: {
+    title: '走 火 入 魔',
+    subtitle: '精力耗尽 &middot; 强制下线',
+    text: '你的精力归零了。身体发出了最后的警告：持续性头痛、失眠、对代码产生生理性厌恶。医生开的诊断书上写着"职业倦怠综合征"。你决定休息一段时间。修仙路漫漫，有时候停下来不是放弃，是为了走得更远。',
+  },
+  slacker: {
+    title: '大 道 至 简',
+    subtitle: '摸鱼大师 &middot; 境界超脱',
+    text: '你的摸鱼值突破了临界点。你悟出了一个道理：在996的世界里，能持续摸鱼而不被开除，本身就是一种顶级能力。你在公司存活了十年，工作量最小但从未被裁员。有人叫你"隐形人"，你称之为"无为而治"。',
+  },
+  rich: {
+    title: '灵 石 成 山',
+    subtitle: '副业起飞 &middot; 财务自由',
+    text: '你攒下了足够多的灵石，靠副业收入超过了工资。你提交了离职申请，HR问为什么。你说："我的修仙之路不在这栋楼里了。"走出公司大门那一刻，阳光格外刺眼。',
+  },
+};
+
+function nextRealm() {
+  if (state.realm < REALMS.length - 1) {
+    const next = REALMS[state.realm + 1];
+    if (state.exp >= next.exp) return true;
+  }
+  return false;
+}
+
+function checkEnding() {
+  if (state.hp <= 0) return 'burnout';
+  if (state.slacking >= 100) return 'slacker';
+  if (state.money >= 200) return 'rich';
+  if (state.realm >= REALMS.length - 1 && state.exp >= 2500) return 'ascend';
+  return null;
+}
+
+function pickEvent() {
+  const available = EVENTS.filter(e => !state.events.includes(e.id) || state.events.length > EVENTS.length * 0.6);
+  const idx = Math.floor(Math.random() * available.length);
+  return available[idx];
+}
+
+function pickTribulation() {
+  const idx = Math.min(Math.floor(state.realm / 2), TRIBULATIONS.length - 1);
+  return TRIBULATIONS[idx];
+}
+
+function applyEffects(effects) {
+  const lines = [];
+  if (effects.exp) {
+    state.exp += effects.exp;
+    lines.push(effects.exp > 0 ? `<span class="gain">修为 +${effects.exp}</span>` : `<span class="lose">修为 ${effects.exp}</span>`);
+  }
+  if (effects.hp) {
+    state.hp = Math.min(state.maxHp, state.hp + effects.hp);
+    lines.push(effects.hp > 0 ? `<span class="gain">精力 +${effects.hp}</span>` : `<span class="lose">精力 ${effects.hp}</span>`);
+  }
+  if (effects.money) {
+    state.money += effects.money;
+    lines.push(effects.money > 0 ? `<span class="gain">灵石 +${effects.money}</span>` : `<span class="lose">灵石 ${effects.money}</span>`);
+  }
+  if (effects.connections) {
+    state.connections += effects.connections;
+    lines.push(effects.connections > 0 ? `<span class="gain">人脉 +${effects.connections}</span>` : `<span class="lose">人脉 ${effects.connections}</span>`);
+  }
+  if (effects.slacking) {
+    state.slacking += effects.slacking;
+    lines.push(`<span class="event">摸鱼 +${effects.slacking}</span>`);
+  }
+  return lines.join('  ');
+}
+
+function renderStats() {
+  const r = REALMS[state.realm];
+  return `<div class="stats-bar">
+    <span>HP ${state.hp}/${state.maxHp}</span>
+    <span>修为 ${state.exp}</span>
+    <span>灵石 ${state.money}</span>
+    <span>人脉 ${state.connections}</span>
+  </div>`;
+}
+
+function renderTitle() {
+  return `
+    <div class="title-art">
+      <div style="font-size:11px; color:#996600">- - - - - - - - - - -</div>
+      <div class="big">职 场 修 仙</div>
+      <div style="font-size:12px; margin:4px 0">模 拟 器</div>
+      <div style="font-size:11px; color:#996600">- - - - - - - - - - -</div>
+      <div style="margin-top:20px; font-size:12px; line-height:2">
+        从练气期（实习生）开始<br>
+        一路修炼至渡劫飞升（CTO）<br><br>
+        <span style="color:#cc8800">修为</span> 决定境界突破<br>
+        <span style="color:#cc8800">精力</span> 归零则走火入魔<br>
+        <span style="color:#cc8800">摸鱼</span> 过高则大道至简<br>
+        <span style="color:#cc8800">灵石</span> 攒够可财务自由
+      </div>
+      <div class="prompt" style="margin-top:24px">[ 按 A 或 OK 开始修炼 ]</div>
+    </div>`;
+}
+
+function renderEvent() {
+  const e = state.currentEvent;
+  const r = REALMS[state.realm];
+  let html = renderStats();
+  html += `<div style="font-size:11px;color:#996600;margin-bottom:8px">${r.name}（${r.title}）&middot; 第${state.day}天</div>`;
+  html += `<div class="scene-title">${e.title}</div>`;
+  html += `<div class="scene-title" style="font-size:15px">${e.monster}</div>`;
+  html += `<div class="scene-flavor">${e.flavor}</div>`;
+  html += `<div class="narrative">${e.text}</div>`;
+  html += `<div class="divider">- - - - - -</div>`;
+
+  if (state.phase === 'choose') {
+    e.choices.forEach((c, i) => {
+      const sel = i === state.selectedChoice ? '&#9654; ' : '  ';
+      html += `<div class="choice ${i === state.selectedChoice ? 'selected' : ''}" onclick="selectChoice(${i})">
+        <span class="key">${sel}</span>${String.fromCharCode(65 + i)}. ${c.text}
+      </div>`;
+    });
+    html += `<div class="prompt">[ A/OK 确认选择 &middot; 方向键切换 ]</div>`;
+  } else {
+    const c = e.choices[state.selectedChoice];
+    html += `<div class="result-text">${c.result}</div>`;
+    html += `<div class="result-text" style="margin-top:8px">${state.resultText}</div>`;
+
+    if (state.phase === 'realm_up') {
+      const nr = REALMS[state.realm];
+      html += `<div class="realm-up">*** 突破！${nr.name}（${nr.title}）***</div>`;
+    }
+    html += `<div class="prompt">[ 按 A 继续 ]</div>`;
+  }
+
+  return html;
+}
+
+function renderTribulation() {
+  const t = state.currentEvent;
+  let html = renderStats();
+  html += `<div class="scene-title" style="font-size:15px; color:#ffdd44">${t.title}</div>`;
+  html += `<div class="narrative">${t.text}</div>`;
+
+  if (state.phase === 'choose') {
+    html += `<div class="battle-stats">
+      修为：${state.exp} &middot; 人脉：${state.connections}<br>
+      渡劫成功率：${Math.min(95, Math.floor((state.exp / (REALMS[state.realm + 1]?.exp || 2500) * 50 + state.connections * 0.3 + (100 - state.slacking) * 0.2)))}%
+    </div>`;
+    html += `<div class="choice selected"><span class="key">&#9654; </span>[A] 渡劫</div>`;
+    html += `<div class="choice"><span class="key">  </span>[B] 暂避锋芒</div>`;
+    html += `<div class="prompt">[ 选择你的命运 ]</div>`;
+  } else {
+    html += `<div class="result-text">${state.resultText}</div>`;
+    if (state.phase === 'realm_up') {
+      const nr = REALMS[state.realm];
+      html += `<div class="realm-up">*** 渡劫成功！${nr.name}（${nr.title}）***</div>`;
+    }
+    html += `<div class="prompt">[ 按 A 继续 ]</div>`;
+  }
+  return html;
+}
+
+function renderEnding() {
+  const e = ENDINGS[state.ending];
+  const r = REALMS[state.realm];
+  let html = `
+    <div class="ending-title">${e.title}</div>
+    <div class="scene-flavor">${e.subtitle}</div>
+    <div class="divider">= = = = = = = =</div>
+    <div class="ending-summary">${e.text}</div>
+    <div class="divider">= = = = = = = =</div>
+    <div class="ending-summary">
+      最终境界：${r.name}（${r.title}）<br>
+      存活天数：${state.day}天<br>
+      总修为：${state.exp}<br>
+      灵石：${state.money} &middot; 人脉：${state.connections}<br>
+      摸鱼值：${state.slacking}<br>
+      做出了 ${state.totalChoices} 次选择
+    </div>
+    <div class="prompt">[ 按 A 重新修炼 ]</div>`;
+  return html;
+}
+
+function render() {
+  const screen = document.getElementById('screen');
+  let html = '';
+  switch (state.screen) {
+    case 'title': html = renderTitle(); break;
+    case 'event': html = renderEvent(); break;
+    case 'tribulation': html = renderTribulation(); break;
+    case 'ending': html = renderEnding(); break;
+  }
+  screen.innerHTML = html;
+  screen.scrollTop = screen.scrollHeight;
+}
+
+function selectChoice(i) {
+  if (state.phase !== 'choose') return;
+  state.selectedChoice = i;
+  render();
+}
+
+function startGame() {
+  Object.assign(state, {
+    screen: 'event',
+    hp: 100, maxHp: 100,
+    exp: 0, money: 0,
+    connections: 0, slacking: 0,
+    realm: 0, day: 1,
+    events: [], currentEvent: null,
+    selectedChoice: 0, phase: 'choose',
+    resultText: '', ending: null,
+    totalChoices: 0, highlights: [],
+  });
+  nextDay();
+}
+
+function nextDay() {
+  state.day++;
+
+  const ending = checkEnding();
+  if (ending) {
+    state.ending = ending;
+    state.screen = 'ending';
+    render();
+    return;
+  }
+
+  if (nextRealm() && state.day % 5 === 0) {
+    const t = pickTribulation();
+    state.currentEvent = t;
+    state.screen = 'tribulation';
+    state.phase = 'choose';
+    state.selectedChoice = 0;
+    render();
+    return;
+  }
+
+  const e = pickEvent();
+  state.currentEvent = e;
+  state.events.push(e.id);
+  state.screen = 'event';
+  state.phase = 'choose';
+  state.selectedChoice = 0;
+  render();
+}
+
+function confirmChoice() {
+  if (state.phase !== 'choose') {
+    if (state.screen === 'ending') {
+      startGame();
+      return;
+    }
+    nextDay();
+    return;
+  }
+
+  state.totalChoices++;
+  const e = state.currentEvent;
+
+  if (state.screen === 'tribulation') {
+    const successRate = Math.min(0.95, state.exp / (REALMS[state.realm + 1]?.exp || 2500) * 0.5 + state.connections * 0.003 + (100 - state.slacking) * 0.002);
+    if (state.selectedChoice === 0) {
+      if (Math.random() < successRate) {
+        state.realm++;
+        state.maxHp += 20;
+        state.hp = Math.min(state.maxHp, state.hp + 30);
+        state.resultText = `<span class="gain">${e.successText}</span>`;
+        state.phase = 'realm_up';
+      } else {
+        state.hp -= 20;
+        state.exp -= 30;
+        state.resultText = `<span class="lose">${e.failText}</span>`;
+        state.phase = 'result';
+      }
+    } else {
+      state.resultText = '你选择韬光养晦，等待更好的时机。';
+      state.phase = 'result';
+    }
+    render();
+    return;
+  }
+
+  const c = e.choices[state.selectedChoice];
+  state.resultText = applyEffects(c.effects);
+
+  if (nextRealm()) {
+    state.realm++;
+    state.maxHp += 15;
+    state.hp = Math.min(state.maxHp, state.hp + 20);
+    state.phase = 'realm_up';
+  } else {
+    state.phase = 'result';
+  }
+
+  render();
+}
+
+function handleInput(key) {
+  switch (key) {
+    case 'a':
+    case 'ok':
+      if (state.screen === 'title') { startGame(); return; }
+      confirmChoice();
+      break;
+    case 'b':
+      break;
+    case 'up':
+    case 'left':
+      if (state.phase === 'choose') {
+        state.selectedChoice = Math.max(0, state.selectedChoice - 1);
+        render();
+      }
+      break;
+    case 'down':
+    case 'right':
+      if (state.phase === 'choose' && state.currentEvent) {
+        const max = state.screen === 'tribulation' ? 1 : (state.currentEvent.choices?.length || 2) - 1;
+        state.selectedChoice = Math.min(max, state.selectedChoice + 1);
+        render();
+      }
+      break;
+  }
+}
+
+document.addEventListener('keydown', (e) => {
+  switch (e.key) {
+    case 'ArrowUp': case 'w': handleInput('up'); break;
+    case 'ArrowDown': case 's': handleInput('down'); break;
+    case 'ArrowLeft': case 'a': handleInput('left'); break;
+    case 'ArrowRight': case 'd': handleInput('right'); break;
+    case 'Enter': case ' ': case 'j': handleInput('a'); break;
+    case 'Escape': case 'k': handleInput('b'); break;
+  }
+  e.preventDefault();
+});
+
+render();
+</script>
+
+</body>
+</html>
