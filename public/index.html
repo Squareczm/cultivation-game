@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>职场修仙模拟器</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+@font-face {
+  font-family: 'Zpix';
+  src: url('https://cdn.jsdelivr.net/gh/SolidZORO/zpix-pixel-font@main/dist/zpix.ttf') format('truetype');
+  font-display: swap;
+}
+
+* {
+  margin: 0; padding: 0; box-sizing: border-box;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  image-rendering: pixelated;
+}
+
+body {
+  background: #1a1a2e;
+  background-image:
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 8px 8px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Zpix', 'Press Start 2P', 'VT323', monospace;
+  overflow: hidden;
+  color: #ffb000;
+}
+
+.machine {
+  width: 420px;
+  max-width: 95vw;
+  background: #2a2a3e;
+  padding: 24px 20px 28px;
+  position: relative;
+  box-shadow:
+    0 0 0 2px #4a4a5e,
+    0 0 0 6px #15152a,
+    0 0 0 8px #4a4a5e,
+    0 0 0 12px #15152a,
+    8px 8px 0 0 rgba(0,0,0,0.4);
+}
+
+.machine-label {
+  text-align: center;
+  color: #cc8800;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.machine-sublabel {
+  text-align: center;
+  color: #4a4a6a;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 6px;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+
+.screen-bezel {
+  background: #0d0d15;
+  padding: 8px;
+  margin-bottom: 20px;
+  box-shadow:
+    inset 0 0 0 2px #000,
+    0 0 0 2px #4a4a5e;
+}
+
+.screen {
+  background: #0a0a0a;
+  padding: 14px;
+  min-height: 360px;
+  max-height: 360px;
+  overflow-y: auto;
+  position: relative;
+  color: #ffb000;
+  font-family: 'Zpix', 'VT323', monospace;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.screen::-webkit-scrollbar { width: 4px; }
+.screen::-webkit-scrollbar-track { background: transparent; }
+.screen::-webkit-scrollbar-thumb { background: #996600; }
+
+.screen::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0.25) 0px,
+    rgba(0,0,0,0.25) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.screen::after { content: none; }
+
+.screen > * { position: relative; z-index: 3; }
+
+.stats-bar {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Press Start 2P', 'Zpix', monospace;
+  font-size: 9px;
+  color: #cc8800;
+  border-bottom: 2px dotted #996600;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.title-art {
+  text-align: center;
+  margin: 16px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #ffb000;
+}
+
+.title-art .big {
+  font-size: 22px;
+  letter-spacing: 6px;
+  margin: 14px 0;
+  color: #ffdd44;
+  text-shadow:
+    2px 0 0 #996600,
+    0 2px 0 #996600,
+    2px 2px 0 #996600;
+}
+
+.scene-title {
+  text-align: center;
+  margin: 8px 0;
+  font-size: 13px;
+  color: #cc8800;
+}
+
+.scene-flavor {
+  text-align: center;
+  font-size: 12px;
+  color: #996600;
+  margin-bottom: 10px;
+}
+
+.narrative {
+  margin: 8px 0 12px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.divider {
+  text-align: center;
+  color: #ffb00040;
+  margin: 6px 0;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+.choice {
+  margin: 6px 0;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 6px;
+  line-height: 1.5;
+  color: #ffb000;
+}
+
+.choice:hover, .choice.selected {
+  color: #0a0a0a;
+  background: #ffb000;
+  text-shadow: none;
+}
+
+.choice .key {
+  display: inline-block;
+  width: 20px;
+  color: inherit;
+}
+
+.choice .tag {
+  display: block;
+  font-size: 11px;
+  color: #996600;
+  margin-top: 2px;
+  padding-left: 20px;
+}
+
+.choice.selected .tag { color: #331a00; }
+
+.result-text {
+  margin: 8px 0;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.result-text .gain { color: #44dd44; }
+.result-text .lose { color: #ff4444; }
+.result-text .event { color: #44bbff; }
+.result-text .item { color: #dd44dd; }
+
+.prompt {
+  text-align: center;
+  font-family: 'Press Start 2P', 'Zpix', monospace;
+  font-size: 9px;
+  color: #996600;
+  margin-top: 12px;
+  letter-spacing: 1px;
+  animation: blink 1s steps(2) infinite;
+}
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 8px;
+}
+
+.dpad {
+  display: grid;
+  grid-template-columns: 40px 40px 40px;
+  grid-template-rows: 40px 40px 40px;
+  gap: 0;
+}
+
+.dpad-btn {
+  width: 40px;
+  height: 40px;
+  background: #15151f;
+  border: 0;
+  color: #ffb000;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow:
+    inset 2px 2px 0 0 #4a4a5e,
+    inset -2px -2px 0 0 #000;
+}
+
+.dpad-btn:active {
+  background: #0a0a12;
+  box-shadow:
+    inset -2px -2px 0 0 #4a4a5e,
+    inset 2px 2px 0 0 #000;
+}
+
+.dpad-btn.empty { background: transparent; box-shadow: none; visibility: hidden; }
+.dpad-btn.ok { font-family: 'Press Start 2P', monospace; font-size: 9px; letter-spacing: 1px; color: #ffdd44; }
+
+.ab-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.ab-btn {
+  width: 52px;
+  height: 52px;
+  border: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  clip-path: polygon(
+    25% 0%, 75% 0%,
+    100% 25%, 100% 75%,
+    75% 100%, 25% 100%,
+    0% 75%, 0% 25%
+  );
+}
+
+.ab-btn:active { transform: translate(1px, 1px); }
+
+.ab-btn.btn-a {
+  background: #cc3333;
+  color: #fff;
+  box-shadow: inset 0 -6px 0 0 #771111;
+}
+
+.ab-btn.btn-b {
+  background: #2255aa;
+  color: #fff;
+  box-shadow: inset 0 -6px 0 0 #112266;
+}
+
+.btn-label {
+  font-family: 'Press Start 2P', 'Zpix', monospace;
+  font-size: 7px;
+  color: #6a6a8a;
+  text-align: center;
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+
+.footer-info {
+  text-align: center;
+  font-family: 'Press Start 2P', 'Zpix', monospace;
+  color: #4a4a6a;
+  font-size: 7px;
+  margin-top: 18px;
+  letter-spacing: 2px;
+}
+
+.realm-up {
+  text-align: center;
+  font-family: 'Press Start 2P', 'Zpix', monospace;
+  font-size: 14px;
+  color: #ffdd44;
+  margin: 16px 0;
+  letter-spacing: 2px;
+  animation: pixelblink 0.5s steps(2) infinite;
+  text-shadow:
+    2px 0 0 #996600,
+    0 2px 0 #996600,
+    2px 2px 0 #996600;
+}
+
+@keyframes pixelblink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.4; }
+}
+
+.battle-stats {
+  font-size: 12px;
+  margin: 8px 0;
+  line-height: 1.6;
+  color: #cc8800;
+}
+
+.ending-title {
+  text-align: center;
+  font-family: 'Press Start 2P', 'Zpix', monospace;
+  font-size: 16px;
+  margin: 14px 0;
+  letter-spacing: 4px;
+  color: #ffdd44;
+  text-shadow:
+    2px 0 0 #996600,
+    0 2px 0 #996600,
+    2px 2px 0 #996600;
+}
+
+.ending-summary {
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 12px 0;
+}
+
+.items-list {
+  font-size: 11px;
+  color: #dd88dd;
+  margin: 6px 0;
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<div class="machine">
+  <div class="machine-label">XIUXIAN CORP GX-2026</div>
+  <div class="machine-sublabel">CN &middot; AMBER CRT &middot; CULTIVATION ENGINE v2</div>
+
+  <div class="screen-bezel">
+    <div class="screen" id="screen"></div>
+  </div>
+
+  <div class="controls">
+    <div class="dpad">
+      <div class="dpad-btn empty"></div>
+      <div class="dpad-btn" onclick="handleInput('up')">&#9650;</div>
+      <div class="dpad-btn empty"></div>
+      <div class="dpad-btn" onclick="handleInput('left')">&#9664;</div>
+      <div class="dpad-btn ok" onclick="handleInput('ok')">OK</div>
+      <div class="dpad-btn" onclick="handleInput('right')">&#9654;</div>
+      <div class="dpad-btn empty"></div>
+      <div class="dpad-btn" onclick="handleInput('down')">&#9660;</div>
+      <div class="dpad-btn empty"></div>
+    </div>
+    <div class="ab-buttons">
+      <div>
+        <div class="ab-btn btn-a" onclick="handleInput('a')">A</div>
+        <div class="btn-label">A 确认</div>
+      </div>
+      <div>
+        <div class="ab-btn btn-b" onclick="handleInput('b')">B</div>
+        <div class="btn-label">B 返回</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-info">v2.0 &middot; 修仙需谨慎 &middot; 摸鱼有风险</div>
+</div>
+
+<script>
+const REALMS = [
+  { name: '练气期', title: '实习生',     exp: 0 },
+  { name: '筑基期', title: '初级工程师', exp: 80 },
+  { name: '结丹期', title: '高级工程师', exp: 220 },
+  { name: '元婴期', title: '技术主管',   exp: 420 },
+  { name: '化神期', title: '架构师',     exp: 700 },
+  { name: '大乘期', title: '技术总监',   exp: 1100 },
+  { name: '渡劫期', title: 'CTO',        exp: 1700 },
+];
+
+const ARCHETYPES = {
+  hacker: {
+    name: '钻研派',
+    flavor: '"代码写到极致，世界自然给你让路"',
+    desc: '技术深度优先。起始修为+10，修为获取+20%。',
+    startMods: { exp: 10 },
+    expMult: 1.2,
+  },
+  glider: {
+    name: '滑行派',
+    flavor: '"工作是一阵风，生活才是海"',
+    desc: '平衡派。精力上限+30，精力恢复+50%。',
+    startMods: { maxHp: 30, hp: 30 },
+    hpMult: 1.5,
+  },
+  climber: {
+    name: '攀登派',
+    flavor: '"修仙路上，人就是最大的法宝"',
+    desc: '职场政治家。起始人脉+15，灵石获取+25%。',
+    startMods: { connections: 15 },
+    moneyMult: 1.25,
+  },
+};
+
+const state = {
+  screen: 'title',
+  archetype: null,
+  hp: 100,
+  maxHp: 100,
+  exp: 0,
+  money: 0,
+  connections: 0,
+  slacking: 0,
+  realm: 0,
+  day: 1,
+  seenEvents: [],
+  queuedEvents: [],
+  items: [],
+  flags: {},
+  currentEvent: null,
+  selectedChoice: 0,
+  menuIndex: 0,
+  phase: 'choose',
+  resultText: '',
+  ending: null,
+  totalChoices: 0,
+};
+
+const EVENTS = [
+  // ==================== 练气期专属 (realm 0) ====================
+  {
+    id: 'first_day', realm: { max: 1 },
+    title: '-- 入门初试 --', monster: '「新人第一天」', flavor: '"欢迎加入团队"',
+    text: '你第一天到岗。HR给你发了一本厚厚的员工手册，mentor 在开会，工位上贴着前一个实习生留下的便利贴："祝好运，需要的时候别怕问。"',
+    choices: [
+      { text: '啃完员工手册，把制度搞清楚', effects: { exp: 10, hp: -5 }, result: '你花了一下午读完手册，发现了两个加班规则的细节。打好地基，走得远。', tag: '+10修为' },
+      { text: '跑去问mentor问题，刷存在感', effects: { connections: 8, exp: 5 }, result: 'mentor开完会看到你在工位等她，笑了："主动的人我喜欢。"你被介绍给了三个关键同事。', tag: '+8人脉' },
+      { text: '先摸摸环境，观察办公室生态', effects: { slacking: 5, exp: 3, hp: 5 }, result: '你留意到谁和谁中午一起吃饭、谁加班最晚、谁在摸鱼。这些信息以后都用得上。', tag: '+5摸鱼' },
+    ]
+  },
+  {
+    id: 'imposter', realm: { max: 1 },
+    title: '-- 心魔初现 --', monster: '「冒名顶替之惑」', flavor: '"我是不是根本不配"',
+    text: '入职两周，你看懂了1/10的代码库，在周会上被问到一个问题，你的回答让整个会议停顿了两秒。晚上回家躺在床上刷着脉脉，盯着"P7 算法工程师"的帖子。',
+    choices: [
+      { text: '接受自己是新人这个事实，慢慢来', effects: { exp: 10, hp: 10 }, result: '你意识到: 不会是新人的常态，假装会才是修仙路上最大的劫。放下之后反而能进步。', tag: '+10修为 +10精力' },
+      { text: '连夜啃源码到凌晨三点', effects: { exp: 20, hp: -20 }, result: '你终于搞懂了那块代码，还发现一个 edge case。周会上讲出来，leader 多看了你一眼。代价是睡眠。', tag: '+20修为 -20精力' },
+    ]
+  },
+  {
+    id: 'first_commit', realm: { max: 1 },
+    title: '-- 初出茅庐 --', monster: '「第一次提交」', flavor: '"等下，这真的能合吗"',
+    text: '你的第一个 PR。改动只有 18 行。但你来回检查了 5 遍。mentor 的消息来了："写完了？合吧，出问题我兜。"',
+    choices: [
+      { text: '鼓起勇气点 merge', effects: { exp: 15, hp: -5, connections: 3 }, result: '合上了。没炸。你在工位上偷偷攥了下拳头。第一次提交的那种心跳，后来再也没有过。', tag: '+15修为' },
+      { text: '再check一遍，让mentor复核', effects: { exp: 8, connections: 5 }, result: 'mentor看了发现你把一个空格写成了tab。她说："能自查是好事，但也要相信自己。"', tag: '+8修为 +5人脉' },
+    ]
+  },
+  {
+    id: 'elder_advice', realm: { max: 1 },
+    title: '-- 仙缘际会 --', monster: '「隐世老鸟」', flavor: '"我以前也这么想"',
+    text: '团队里有位快要退休的老工程师，主动约你喝咖啡。他问你的职业规划，你说了一堆听起来很聪明的话。他笑了："那些都是别人说的。你自己想要什么？"',
+    choices: [
+      { text: '坦白: 不知道，正在探索', effects: { exp: 15, connections: 10, hp: 5 }, result: '他认真听你说完，说: 不知道比假装知道强一百倍。送了你一句话: "先把眼前这件事做到最好。"你记了下来。', tag: '+15修为 +10人脉', item: '老鸟的便签', flag: 'met_elder' },
+      { text: '编一个听起来靠谱的答案', effects: { exp: 3, connections: -5 }, result: '他听完笑了笑，没再多说。你走出咖啡厅，觉得自己错过了什么。', tag: '+3修为 -5人脉' },
+    ]
+  },
+
+  // ==================== 筑基期主场 (realm 1-2) ====================
+  {
+    id: 'req_change', realm: { min: 1 },
+    title: '-- 遭遇战 --', monster: '「需求变更兽」', flavor: '"这里再改一下就行了"',
+    text: '产品经理凌晨发来消息，需求文档被推翻重写。你打开电脑，发现改动涉及三个核心模块。',
+    choices: [
+      { text: '连夜重构，用设计模式优雅应对', effects: { exp: 25, hp: -20, money: 5 }, result: '你用策略模式完美隔离了变更。经验大涨，黑眼圈更深了。', tag: '+25修为 -20精力' },
+      { text: '先摸会鱼，明天再说', effects: { slacking: 10, hp: 5, exp: 5 }, result: '你打开B站看了两小时，第二天发现需求又改回去了。有时候摸鱼才是最优解。', tag: '+10摸鱼 +5精力' },
+      { text: '约PM明早当面对齐，不接受文字改需求', effects: { exp: 15, connections: 5, hp: -5 }, result: '当面聊发现他自己也没想清楚。你们一起砍掉了一半改动。边界是修为的一部分。', tag: '+15修为 +5人脉' },
+    ]
+  },
+  {
+    id: 'oncall', realm: { min: 1 },
+    title: '-- 夜袭 --', monster: '「凌晨告警妖」', flavor: '"P0 告警: 服务不可用"',
+    text: '凌晨3点，手机疯狂震动。线上P0故障，用户量暴跌。值班群里已经@了你三次。',
+    choices: [
+      { text: '秒起床，远程定位并修复', effects: { exp: 30, connections: 15, hp: -25, money: 10 }, result: '你在47分钟内定位到是缓存击穿，紧急上线热修复。CTO在群里说了句"不错"。这两个字价值千金。', tag: '+30修为 +15人脉 -25精力', flag: 'saved_prod' },
+      { text: '装没看到，等白天再处理', effects: { hp: 10, connections: -15, slacking: 15 }, result: '第二天到公司发现已经有人帮你处理了，但你的名字上了oncall黑名单。有些修为逃不掉。', tag: '-15人脉 +15摸鱼' },
+      { text: '打电话叫醒备份同事', effects: { exp: 10, connections: -5, hp: 0 }, result: '同事第二天没给你好脸色，但问题解决了。你学到一个道理: 有些仗不必自己打，但要学会欠人情的边界。', tag: '+10修为 -5人脉' },
+    ]
+  },
+  {
+    id: 'code_review', realm: { min: 1 },
+    title: '-- 论道切磋 --', monster: '「代码审查仙」', flavor: '"这里为什么这样写"',
+    text: '你提交的PR被一个资深同事留了28条comment。有些确实是问题，有些你觉得是风格偏好。',
+    choices: [
+      { text: '逐条认真回复，该改改，该解释解释', effects: { exp: 20, connections: 10, hp: -10 }, result: '来回三轮后PR合并了。那个同事后来私聊: "你的回复质量很高。"一次好的Code Review抵十次技术分享。', tag: '+20修为 +10人脉', flag: 'rival_respects' },
+      { text: '全部Resolve，备注"已修改"', effects: { exp: 5, connections: -10, slacking: 5 }, result: 'PR快速合并了，但那个同事再也没认真Review过你的代码。你失去了一个免费的师父。', tag: '+5修为 -10人脉' },
+    ]
+  },
+  {
+    id: 'friday_deploy', realm: { min: 1 },
+    title: '-- 周五危机 --', monster: '「Friday Deploy 禁术」', flavor: '"上线吧，就差这一下了"',
+    text: '周五下午五点半。产品说这个功能必须今天上，下周一就要对外演示。改动不大，测试充分。但你心里有根弦: 周五上线，老祖宗说过要出事。',
+    choices: [
+      { text: '坚决推到周一早上', effects: { exp: 15, connections: -5, hp: 10 }, result: '产品不高兴。但周六监控告警响了个别的模块，隔壁组值班同事崩溃，你感谢自己没凑热闹。', tag: '+15修为 +10精力' },
+      { text: '硬上，一起值班到深夜', effects: { exp: 20, hp: -25, money: 5, connections: 5 }, result: '凌晨两点功能上线了。没出问题。你瘫在沙发上给老婆发了条"还有半小时回家"的谎话。', tag: '+20修为 -25精力' },
+      { text: '把功能拆一半，先上稳的那一半', effects: { exp: 25, connections: 10, hp: -5 }, result: '产品勉强接受。上线丝滑。这就是 Tech Lead 的判断力: 该推的时候敢推。', tag: '+25修为 +10人脉' },
+    ]
+  },
+  {
+    id: 'ai_tool', realm: { min: 1 },
+    title: '-- 法宝降世 --', monster: '「AI编码神器」', flavor: '"Tab Tab Tab"',
+    text: '公司引入了AI编码助手。你发现它能自动完成60%的样板代码，但偶尔会生成看起来对但逻辑有坑的代码。',
+    choices: [
+      { text: '深度使用，但每行AI代码都认真Review', effects: { exp: 25, hp: -5, money: 10 }, result: '效率确实提升了，你用省下来的时间去理解了系统架构。AI是法宝，驾驭法宝需要修为。', tag: '+25修为 +10灵石' },
+      { text: '全盘接受AI生成的代码，追求速度', effects: { exp: 5, money: 15, hp: 5, slacking: 10 }, result: '提测速度翻倍，但两周后线上出了一个AI生成的边界条件bug。Tech Lead在复盘会上看着你。', tag: '+15灵石 +10摸鱼' },
+      { text: '不用，担心养成依赖', effects: { exp: 10, hp: -10 }, result: '你靠传统方式交付，质量稳定但速度慢。三个月后发现同组的人已经用AI在摸更硬的骨头了。', tag: '+10修为 -10精力' },
+    ]
+  },
+
+  // ==================== 结丹/元婴期 (realm 2-3) ====================
+  {
+    id: 'mentor_junior', realm: { min: 2 },
+    title: '-- 收徒传艺 --', monster: '「新人迷茫劫」', flavor: '"前辈，这个我不会"',
+    text: '团队来了个新实习生，天天来问你问题。有些问题Google就能查到。你时间本来就紧。',
+    choices: [
+      { text: '耐心教，而且教会他用Google和AI', effects: { exp: 15, connections: 15, hp: -10 }, result: '两周后他就独立做小需求了，还主动承担了些边角活，给你省出时间。最好的投资是培养人。', tag: '+15修为 +15人脉', flag: 'has_disciple' },
+      { text: '冷处理，让他自己摸索', effects: { exp: 5, connections: -8 }, result: '他后来跟另一个 senior 走得很近，再也没找过你。你省了时间，也失去了一个将来可能的盟友。', tag: '+5修为 -8人脉' },
+      { text: '教一次，然后把常见问题整理成文档', effects: { exp: 25, connections: 10 }, result: '文档成了团队新人必读。你被点名表扬，"体系化思考"。这是从工程师到Lead的转折点。', tag: '+25修为 +10人脉', item: '新人入门指南' },
+    ]
+  },
+  {
+    id: 'perf_review', realm: { min: 2 },
+    title: '-- 雷劫降临 --', monster: '「绩效考核劫」', flavor: '"请做好自评"',
+    text: '季度绩效考核来了。你的KPI完成了78%，但做了两个没在KPI里的技术改进。领导让你自评。',
+    choices: [
+      { text: '如实汇报，展示技术深度', effects: { exp: 20, connections: 5, money: 10 }, result: '领导意外地认可了你的技术判断。有时候诚实本身就是一种修为。', tag: '+20修为 +5人脉' },
+      { text: '包装一下，把KPI外的工作说成KPI达成', effects: { exp: 10, money: 15, connections: -5 }, result: '领导没深究，绩效过了。但组里那个较真的同事似乎看出了什么。', tag: '+15灵石 -5人脉' },
+      { text: '主动要求降低评分，换下季度更好的项目', effects: { exp: 15, money: -5, connections: 10 }, result: '领导愣了一下，但真的给你分了一个更硬的项目。这就是延迟满足的修为。', tag: '+15修为 +10人脉' },
+    ]
+  },
+  {
+    id: 'meeting', realm: { min: 2 },
+    title: '-- 精神攻击 --', monster: '「无效会议魔」', flavor: '"我们对齐一下"',
+    text: '下午两点，一个没有议程的两小时会议。参会人12个，其中8个全程静音。第40分钟时，有人问了一个会前邮件里已经回答过的问题。',
+    choices: [
+      { text: '主动接管会议，10分钟内结束', effects: { exp: 15, connections: 10, hp: -5 }, result: '你整理了三个待办和两个结论，终结了会议。有人在群里发了个大拇指，修为精进。', tag: '+15修为 +10人脉' },
+      { text: '静音摸鱼，偷偷写代码', effects: { slacking: 8, exp: 10, hp: 5 }, result: '你趁机修了两个bug。会议结束时你说"我没问题"。完美隐身。', tag: '+10修为 +8摸鱼' },
+      { text: '半小时后找理由提前离场', effects: { hp: 10, connections: -3, slacking: 5 }, result: '"有个线上故障要看下。"组织者没拦你，其他人用嫉妒的眼神看你。自由也是一种技术。', tag: '+10精力 +5摸鱼' },
+    ]
+  },
+  {
+    id: 'burnout', realm: { min: 2 },
+    title: '-- 走火入魔 --', monster: '「倦怠之劫」', flavor: '"不想上班"',
+    text: '连续加班两周后，你周一早上躺在床上，盯着天花板。闹钟响了三次。你知道不是生病，是累了。真的累了。',
+    choices: [
+      { text: '请一天假，去海边走走', effects: { hp: 30, exp: 5, money: -5, slacking: 5 }, result: '你坐在海边看了一下午浪。什么都没想。回来后发现代码看起来没那么讨厌了。修仙也需要休息。', tag: '+30精力' },
+      { text: '灌一杯咖啡，硬撑', effects: { hp: -15, exp: 10 }, result: '你撑过了这一天，但下午开始头疼。晚上回家倒在沙发上就睡着了。苦修也是修，代价不小。', tag: '-15精力 +10修为' },
+      { text: '去看医生，认真对待这个信号', effects: { hp: 20, money: -10, connections: 5 }, result: '医生说你处于职业倦怠早期。他说了一句让你记住的话: "身体是硬件，代码再好硬件挂了也白搭。"', tag: '+20精力', item: '体检报告' },
+    ]
+  },
+  {
+    id: 'side_project', realm: { min: 2 },
+    title: '-- 秘境发现 --', monster: '「开源秘境」', flavor: '"Star 数: 0"',
+    text: '你发现了一个有潜力的开源项目方向。如果成功，可能带来大量关注。但需要投入业余时间。',
+    choices: [
+      { text: '全力投入，周末都用来写代码', effects: { exp: 35, connections: 20, hp: -30, money: -5 }, result: '三周后项目拿到200个Star。有猎头开始联系你。代价是错过了三次朋友聚会和一个潜水行程。', tag: '+35修为 +20人脉', flag: 'has_side_project' },
+      { text: '随缘参与，不影响生活节奏', effects: { exp: 10, hp: 10, slacking: 5 }, result: '你提了几个PR，写了点文档。项目缓慢成长。周末去爬了山，状态不错。', tag: '+10修为 +10精力' },
+    ]
+  },
+  {
+    id: 'lunch', realm: { min: 1 },
+    title: '-- 日常修炼 --', monster: '「午餐选择题」', flavor: '"今天吃什么"',
+    text: '中午了。同事叫你一起去新开的日料店，人均80。你看了看工资条，又看了看楼下15块的沙县。',
+    choices: [
+      { text: '去日料，社交也是投资', effects: { connections: 10, money: -10, hp: 5 }, result: '聊天中得知隔壁组在用你一直想学的技术栈。回来后要到了他们的设计文档。人脉就是信息差。', tag: '+10人脉 -10灵石' },
+      { text: '沙县解决，把钱存起来', effects: { money: 10, hp: 5, slacking: 3 }, result: '拌面加蛋，经典配置。省下来的钱你买了一本技术书。修仙不必铺张。', tag: '+10灵石' },
+      { text: '自己在工位泡面，刷技术博客', effects: { exp: 15, hp: -5, connections: -5 }, result: '你吃泡面时读了三篇技术文章。一下午效率很高。但HR下午问你"是不是最近情绪不好"。', tag: '+15修为' },
+    ]
+  },
+  {
+    id: 'weekend', realm: { min: 1 },
+    title: '-- 闭关修炼 --', monster: '「周末时间兽」', flavor: '"这周末有空吗"',
+    text: '周五下午，你面前有两个选项: 周末参加一个技术黑客松，或者去学一次潜水体验课。',
+    choices: [
+      { text: '去黑客松，和陌生人组队做项目', effects: { exp: 20, connections: 15, hp: -15 }, result: '48小时没睡做了个AI小工具，没拿奖，但认识了三个很强的人。有时候过程比结果重要。', tag: '+20修为 +15人脉' },
+      { text: '去潜水，换个世界待一会', effects: { hp: 25, exp: 5, slacking: 5 }, result: '水下15米，没有消息通知。你看着珊瑚和鱼群，忽然觉得那些代码bug没那么重要了。心境提升。', tag: '+25精力', item: '潜水日志' },
+      { text: '两个都不去，在家躺平一整天', effects: { hp: 15, slacking: 10 }, result: '你睡到下午两点，看了一整天动漫，吃了两顿外卖。第二天神清气爽地开会。不是每个周末都要有意义。', tag: '+15精力 +10摸鱼' },
+    ]
+  },
+  {
+    id: 'legacy_code', realm: { min: 2 },
+    title: '-- 上古遗迹 --', monster: '「祖传代码阵」', flavor: '"这段代码不要动"',
+    text: '你被分配去维护一个五年前的模块。没有文档，没有测试，注释写着"临时方案TODO"。原作者已经离职两年了。',
+    choices: [
+      { text: '先写测试覆盖，再逐步重构', effects: { exp: 25, hp: -15, money: 5 }, result: '花了两周写完测试，发现了三个隐藏bug。重构后模块性能提升40%。最难的修炼往往回报最大。', tag: '+25修为 -15精力' },
+      { text: '不动核心逻辑，只在外面包一层', effects: { exp: 10, hp: 5, slacking: 5 }, result: '代码能跑，需求能交。但你知道那个定时炸弹还在里面。有些债迟早要还。', tag: '+10修为 +5摸鱼' },
+      { text: '拒绝接手，推给PM重新评估必要性', effects: { exp: 5, connections: -10, hp: 10 }, result: 'PM不满，但一个月后发现这功能确实没人在用，直接下线了。识别真需求也是修为。', tag: '-10人脉 +10精力' },
+    ]
+  },
+  {
+    id: 'office_politics', realm: { min: 2 },
+    title: '-- 心魔试炼 --', monster: '「办公室政治魔」', flavor: '"你站哪边"',
+    text: '技术总监和产品VP在架构方案上产生分歧。两边都在私下拉人。你的直属leader暗示你应该支持技术总监。',
+    choices: [
+      { text: '写一份客观的技术评估，两边都发', effects: { exp: 20, connections: -5, money: 0 }, result: '两边都觉得你"不够意思"，但CEO看到了你的评估。有时候不站队本身就是一种站队。', tag: '+20修为 -5人脉' },
+      { text: '跟直属leader走', effects: { connections: 15, exp: 5, money: 5 }, result: '技术总监的方案通过了。你获得了信任，也被打上了"某某的人"的标签。', tag: '+15人脉 +5灵石' },
+      { text: '装糊涂，两边都请吃饭', effects: { connections: 8, money: -10, slacking: 5 }, result: '你请两边吃了饭，谁也没得罪。但也谁都没真正记住你。温吞也是一种代价。', tag: '+8人脉 -10灵石' },
+    ]
+  },
+  {
+    id: 'headhunter', realm: { min: 2 },
+    title: '-- 外道诱惑 --', monster: '「猎头蛊惑术」', flavor: '"方便聊聊吗"',
+    text: '一个猎头在领英上联系你，对面是竞对公司，Title高一级，薪资涨30%。但你现在的项目刚到关键期。',
+    choices: [
+      { text: '去聊聊，不一定跳但看看行情', effects: { connections: 10, money: 5, exp: 5 }, result: '面了两轮，拿到了offer但没去。不过你知道了自己的市场价。知己知彼，修仙之道。', tag: '+10人脉 +5灵石' },
+      { text: '婉拒，专注当前项目', effects: { exp: 20, connections: 5 }, result: '项目三个月后上线，你拿到了年度优秀员工。专注力本身就是修为。', tag: '+20修为 +5人脉' },
+      { text: '接offer，直接跳槽', effects: { money: 40, exp: -10, hp: -15, connections: -15 }, result: '到新公司发现也是一堆坑，但薪资涨了。跳槽是一种加速器，也是一种重启。', tag: '+40灵石 -15人脉', flag: 'changed_jobs' },
+    ]
+  },
+  {
+    id: 'tech_talk', realm: { min: 2 },
+    title: '-- 机缘降临 --', monster: '「技术分享会」', flavor: '"有人愿意讲吗"',
+    text: '部门要搞技术分享会，leader在群里问谁愿意讲。沉默了30秒。你最近刚好研究了一个有意思的方向。',
+    choices: [
+      { text: '举手，准备一个硬核分享', effects: { exp: 25, connections: 15, hp: -10 }, result: '你讲了40分钟，Q&A环节来了5个好问题。会后有三个人加了你微信。知识分享是修仙最快的路。', tag: '+25修为 +15人脉', flag: 'public_speaker' },
+      { text: '继续沉默，让别人上', effects: { hp: 5, slacking: 5 }, result: '最后没人讲，分享会取消了。你松了口气。但也错过了一次机缘。', tag: '+5精力' },
+      { text: '推荐自己的徒弟去讲', effects: { exp: 10, connections: 10 }, result: '徒弟紧张但讲得不错。你在台下看着，有一种奇妙的欣慰。师徒同修，功德双倍。', tag: '+10修为 +10人脉' },
+    ]
+  },
+
+  // ==================== 化神/大乘期 (realm 4+) ====================
+  {
+    id: 'mentor_meeting', realm: { min: 3 },
+    title: '-- 高人点化 --', monster: '「隐世Staff」', flavor: '"技术只占30%"',
+    text: '一个即将离职的Staff Engineer约你吃饭。席间他说: "你技术不差，但只会技术。这个行业到了某个层级，技术只占30%。"',
+    choices: [
+      { text: '虚心请教，问他另外70%是什么', effects: { exp: 30, connections: 20, hp: -5 }, result: '他说了三个词: 判断力、沟通、取舍。饭后你在备忘录里写了很久。有些话五年后才会真正听懂。', tag: '+30修为 +20人脉', item: '三字箴言' },
+      { text: '"我就是喜欢纯技术"', effects: { exp: 10, connections: -5 }, result: '他笑了笑没再说什么。两年后你在同一个职级原地踏步时，想起了这顿饭。', tag: '+10修为 -5人脉' },
+      { text: '反问他: "那你呢，满意自己吗"', effects: { exp: 20, connections: 10, hp: -5 }, result: '他愣了一下，说: "满意过，也怀疑过，现在看淡了。"那顿饭后，你多了一个真正可以深聊的朋友。', tag: '+20修为 +10人脉' },
+    ]
+  },
+  {
+    id: 'cross_team', realm: { min: 3 },
+    title: '-- 跨派斗法 --', monster: '「跨团队拉锯战」', flavor: '"这个事你们做"',
+    text: '一个跨团队需求，对方leader在群里 @ 你，说"这个事你们这边做吧，我们人手不够"。但这个需求本质上是对方的业务。',
+    choices: [
+      { text: '写邮件抄送上级，把边界说清楚', effects: { exp: 20, connections: -5, hp: -5 }, result: '对方leader在邮件里回了一堆细节推诿，但你的上级看明白了。以后类似事情不再找你。写字比说话有力。', tag: '+20修为 -5人脉' },
+      { text: '接下来，换一个长期合作关系', effects: { connections: 20, exp: 10, hp: -15, money: -5 }, result: '你接了，做完了。三个月后对方leader主动给你们团队让出了一个好资源。投资关系的回报很长。', tag: '+20人脉 -15精力' },
+      { text: '约对方leader一对一，私下谈', effects: { exp: 25, connections: 10 }, result: '你们聊了一小时，弄清楚他真正的压力来源。最后各自承担一半。成年人的合作不是输赢，是信息对称。', tag: '+25修为 +10人脉' },
+    ]
+  },
+  {
+    id: 'first_report', realm: { min: 3 },
+    title: '-- 初掌权柄 --', monster: '「首次带新人」', flavor: '"他三天没出活"',
+    text: '你第一次有直接下属。那个同学入职三天，没交付任何代码。你叫他一对一，他说: "我在熟悉代码库。"',
+    choices: [
+      { text: '给一个明确的两周期望: 产出第一个PR', effects: { exp: 20, connections: 10 }, result: '他如期交了个PR，虽然粗糙。你和他约定了每周同步。管人第一课: 预期管理比人才培养更早。', tag: '+20修为 +10人脉' },
+      { text: '继续放养，相信他能自驱', effects: { exp: 5, connections: -5, hp: 5 }, result: '两周后他还是没产出，你的上级开始问你这个人能不能留。自驱是奢望，机制才是现实。', tag: '-5人脉' },
+      { text: '拉他一起结对编程一整天', effects: { exp: 25, connections: 15, hp: -10 }, result: '那天结束时你们俩都累惨了。但他第二天开始快速出活。有时候领导力就是亲自下场示范。', tag: '+25修为 +15人脉', flag: 'strong_leader' },
+    ]
+  },
+  {
+    id: 'tech_selection', realm: { min: 4 },
+    title: '-- 择道之劫 --', monster: '「技术选型决」', flavor: '"用新的还是旧的"',
+    text: '新项目启动。有一个很火的新框架，文档全但生态未成熟。另一个老框架稳如磐石，但写起来啰嗦。团队年轻人都想用新的。',
+    choices: [
+      { text: '用老框架，稳定第一', effects: { exp: 15, connections: -5, hp: 5 }, result: '项目按时上线没踩坑。但团队里有人开始怀疑你保守。领导力就是这样被质疑和证明的。', tag: '+15修为' },
+      { text: '用新框架，赌一把未来', effects: { exp: 20, hp: -20, money: 10 }, result: '前两周被各种未文档化的bug搞崩溃。但上线后性能确实好，团队士气大涨。有时候技术选型就是勇气。', tag: '+20修为 +10灵石' },
+      { text: '新老结合，核心用老，实验性用新', effects: { exp: 30, connections: 10 }, result: '方案获得一致认可。你借这个项目教了团队什么叫"风险分层"。这是从资深到架构的分水岭。', tag: '+30修为 +10人脉' },
+    ]
+  },
+  {
+    id: 'junior_mistake', realm: { min: 3 },
+    title: '-- 弟子闯祸 --', monster: '「下属误操作劫」', flavor: '"老板我搞坏了"',
+    text: '你的下属在生产环境跑了一个错误的脚本，删了一批数据。他面色惨白地来找你。老板还不知道。',
+    choices: [
+      { text: '主动承担，说是我审核不严', effects: { exp: 20, connections: 20, hp: -15, money: -10 }, result: '老板批评了你，但没处分下属。那个下属后来成了你最死心塌地的人。领导力的本质是背锅。', tag: '+20修为 +20人脉', flag: 'loyal_team' },
+      { text: '让他自己去跟老板汇报', effects: { exp: 10, connections: -10 }, result: '下属被重罚。他再也没主动找过你。团队里其他人开始有距离感。管理一旦只算账不讲人情，就塌了。', tag: '-10人脉' },
+      { text: '先想办法恢复数据，再一起去认错', effects: { exp: 30, connections: 15, hp: -20 }, result: '你们熬夜从备份里捞回了90%的数据。第二天一起去认错，老板反倒夸了你们的处置。危机也是修炼。', tag: '+30修为 +15人脉' },
+    ]
+  },
+
+  // ==================== 大乘/渡劫期 (realm 5+) ====================
+  {
+    id: 'hiring', realm: { min: 5 },
+    title: '-- 招贤纳士 --', monster: '「关键岗位招聘」', flavor: '"我们需要一个senior"',
+    text: '你的团队要招一个关键senior。HR给了你三个候选人: A技术最强但面试很傲；B中规中矩可靠；C潜力大但经验不够。',
+    choices: [
+      { text: '招A，赌他能快速带动团队', effects: { exp: 20, connections: -10, money: 15 }, result: '他三个月内让团队交付翻倍，但也让两个老同事递了简历。高手的代价很贵。', tag: '+20修为 -10人脉' },
+      { text: '招B，团队稳定第一', effects: { exp: 10, connections: 10, money: 5 }, result: '他平稳地接住了项目。半年后团队没有爆发式增长，但也没出事。稳是一种价值。', tag: '+10修为 +10人脉' },
+      { text: '招C，赌他的潜力', effects: { exp: 25, connections: 15, hp: -10 }, result: '你投入大量时间带他。一年后他成了团队顶梁柱。最好的招聘是把对的人培养出来。', tag: '+25修为 +15人脉', flag: 'good_hire' },
+    ]
+  },
+  {
+    id: 'firing', realm: { min: 5 },
+    title: '-- 清理门户 --', monster: '「不得不做的决定」', flavor: '"他真的不合适"',
+    text: '团队里有个老员工，技术没跟上，态度也散漫，三次PIP都没明显改善。HR问你还给不给机会。他老婆刚生了二胎。',
+    choices: [
+      { text: '直接辞退，按流程走', effects: { exp: 15, connections: -10, hp: -15 }, result: '决定做完你一整周没睡好。但团队效率立刻提升。有些决定是正确的，也是痛的。', tag: '+15修为' },
+      { text: '给一次真正的机会，亲自带他三个月', effects: { exp: 20, connections: 5, hp: -20 }, result: '三个月后他状态回来了一点，但还是没达到岗位要求。你再做决定时心更硬了一点。', tag: '+20修为 -20精力' },
+      { text: '帮他在公司内部转岗', effects: { exp: 25, connections: 15, hp: -10 }, result: '他去了一个对他合适的岗位，感激你一辈子。真正的领导力不是开除一个人，是帮他找到合适的位置。', tag: '+25修为 +15人脉' },
+    ]
+  },
+  {
+    id: 'budget_cut', realm: { min: 5 },
+    title: '-- 资源劫 --', monster: '「预算削减令」', flavor: '"明年要缩20%"',
+    text: 'CEO宣布明年整体预算砍20%。你的团队要么裁人，要么砍项目，要么降薪。你需要给方案。',
+    choices: [
+      { text: '砍掉三个低ROI项目，保住团队', effects: { exp: 25, connections: 15, money: -5 }, result: '你做了一份客观的ROI分析，CEO拍板同意。团队没裁人但要承受几个项目延期。这是judgment call。', tag: '+25修为 +15人脉' },
+      { text: '全员降薪10%，一个都不裁', effects: { exp: 15, connections: 10, hp: -15, money: -20 }, result: '你带头降薪最多。团队感动，但也有人一个月后跳了槽。仁义和残酷在管理里是一体两面。', tag: '+15修为 +10人脉' },
+      { text: '果断裁掉底部20%，保住项目势头', effects: { exp: 20, connections: -15, money: 10 }, result: '你拿了一份清单亲自谈了每个人。团队留下的人更聚焦了。但你看清了自己身上某种不喜欢但必须承担的部分。', tag: '+20修为 -15人脉' },
+    ]
+  },
+  {
+    id: 'board_meeting', realm: { min: 6 },
+    title: '-- 面见长老 --', monster: '「董事会质询」', flavor: '"技术方向是什么"',
+    text: '董事会问你: 未来三年的技术战略是什么？为什么不做大模型自研？为什么不all in AI Agent？为什么不收购那家初创？',
+    choices: [
+      { text: '老实说有些事短期内不做，给出清晰理由', effects: { exp: 30, connections: 10, hp: -10 }, result: '两位独董在会后私下找你聊天，说"好久没听过这么清醒的回答"。真话在会议室里是最稀缺的东西。', tag: '+30修为 +10人脉' },
+      { text: '全部画饼，说我们都在做', effects: { exp: 5, money: 15, connections: -10 }, result: '董事会满意了这一次。但半年后他们问进度时你开始接不住。画的饼总要还。', tag: '+15灵石 -10人脉' },
+      { text: '承认自己不确定，请董事会一起定', effects: { exp: 25, connections: 20 }, result: '你的诚实反而让董事们愿意拿出时间和你一起想。这是CTO和首席写代码工程师的核心区别。', tag: '+25修为 +20人脉' },
+    ]
+  },
+  {
+    id: 'acquisition', realm: { min: 6 },
+    title: '-- 收编之约 --', monster: '「大厂收购案」', flavor: '"我们出价很好"',
+    text: '一家大厂想收购你负责的业务线。对方开出高溢价，你个人可以套现一笔可观的钱。但被收购后，这个业务大概率被整合打散。',
+    choices: [
+      { text: '支持收购，拿钱走人', effects: { money: 80, connections: -5, exp: -10 }, result: '交易完成，你拿到了一笔钱。一年后你看着曾经的产品被雪藏，心里说不清是什么滋味。', tag: '+80灵石 -10修为' },
+      { text: '反对收购，保持独立', effects: { exp: 30, connections: 15, hp: -15 }, result: '你说服了CEO拒绝offer。团队士气被点燃，那个季度你们做出了最好的版本。有些东西不能卖。', tag: '+30修为 +15人脉' },
+      { text: '谈一个半整合方案: 保留品牌和核心团队', effects: { exp: 35, connections: 25, money: 40 }, result: '你和对方CEO聊了一夜，谈成了一个双赢方案。这是真正的 deal making。CTO的高段位版本。', tag: '+35修为 +25人脉 +40灵石' },
+    ]
+  },
+  {
+    id: 'interview', realm: { min: 6 },
+    title: '-- 媒体访谈 --', monster: '「采访考验」', flavor: '"您怎么看AI的冲击"',
+    text: '一家科技媒体约你采访，话题是AI对工程师职业的冲击。你的回答会被几十万人看到。',
+    choices: [
+      { text: '说真话: AI会取代一部分工作，但创造新的修炼方向', effects: { exp: 25, connections: 15, hp: -5 }, result: '文章发出后引发大量讨论。有人认同有人骂你冷血。但你知道自己说的是真的。这就是声誉。', tag: '+25修为 +15人脉', flag: 'public_figure' },
+      { text: '打安全牌，说"AI是助手不是替代"', effects: { exp: 5, connections: 5 }, result: '文章发了没什么水花。你知道自己错过了一次有分量的发声机会。', tag: '+5人脉' },
+      { text: '婉拒采访，保持低调', effects: { hp: 10, connections: -5 }, result: '你的公关说你错过了一个绝好的机会。但你周末带家人去了趟潜水。有些机会不值得。', tag: '+10精力' },
+    ]
+  },
+
+  // ==================== 通用事件(任意境界) ====================
+  {
+    id: 'partner_anniversary', realm: { min: 1 },
+    title: '-- 红尘牵绊 --', monster: '「结婚纪念日」', flavor: '"你忘了吧"',
+    text: '你老婆今晚要跟你庆祝结婚纪念日。下午五点老板把一个临时大活甩给你，要求明早十点给方案。',
+    choices: [
+      { text: '先赴约，晚上回来熬夜做', effects: { exp: 15, hp: -25, connections: 10 }, result: '你准时回家，两人开了瓶红酒。10点你偷偷躲去书房干到凌晨3点。家庭是地基，事业是楼。', tag: '+10人脉 -25精力', flag: 'good_spouse' },
+      { text: '告诉她改期，今晚加班', effects: { exp: 20, connections: -15, money: 5 }, result: '她没吵，但你回家时发现她已经睡了。桌上留了一张纸: "你选择的。"', tag: '+20修为 -15人脉' },
+      { text: '把活diss回去，让老板另找人', effects: { exp: 5, connections: -10, hp: 10 }, result: '老板这次没说什么。但下个月的好项目没有你。对一切都说好是软弱，对错误的事说不是修为。', tag: '-10人脉' },
+    ]
+  },
+  {
+    id: 'health_scare', realm: { min: 2 },
+    title: '-- 身劫降临 --', monster: '「体检报告红字」', flavor: '"左侧颈动脉斑块"',
+    text: '体检报告出来了。几项指标异常。医生建议你认真对待，调整作息和饮食。你看着屏幕上"中等风险"几个字愣了一会。',
+    choices: [
+      { text: '立即开始吃药+控饮食+规律运动', effects: { hp: 30, money: -20, exp: -5 }, result: '三个月后复查，指标明显好转。你发现自己比之前工作状态反而更好了。健康是最硬的基础设施。', tag: '+30精力 -20灵石', item: '健康档案', flag: 'took_health_seriously' },
+      { text: '先拖着，等不忙了再处理', effects: { hp: -20, exp: 10 }, result: '半年后又复查，更严重了。你开始后悔没早行动。身体的债，利息比信用卡还高。', tag: '-20精力' },
+      { text: '告诉家人，让他们督促你', effects: { hp: 20, connections: 10, exp: -5 }, result: '老婆开始每天给你准备蒸菜。你每天被温柔地提醒喝水。脆弱也是一种亲密。', tag: '+20精力 +10人脉' },
+    ]
+  },
+  {
+    id: 'ai_anxiety', realm: { min: 2 },
+    title: '-- 时代之劫 --', monster: '「AI焦虑潮」', flavor: '"我会被取代吗"',
+    text: '朋友圈刷屏一篇文章: "AI将在5年内取代80%的程序员。"你看完关了手机，盯着天花板。',
+    choices: [
+      { text: '全力学AI, 成为驾驭它的人', effects: { exp: 35, hp: -15 }, result: '三个月后你已经能用Agent工作流做以前3个人的活。你不是被AI取代，是用AI取代了3个自己。', tag: '+35修为 -15精力', flag: 'ai_native' },
+      { text: '专注自己擅长的领域，相信深度价值', effects: { exp: 20, hp: 10 }, result: '你没追新技术，把老本行深耕到了新高度。一年后发现你反而成了团队里最不可替代的人。', tag: '+20修为 +10精力' },
+      { text: '恐慌刷各种博主视频，停不下来', effects: { hp: -20, slacking: 10, exp: -5 }, result: '你每晚刷到凌晨两点，越刷越焦虑。真正做事的时间反而更少了。信息焦虑是新一代的走火入魔。', tag: '-20精力 +10摸鱼' },
+    ]
+  },
+  {
+    id: 'diving_trip', realm: { min: 2 },
+    title: '-- 远游之缘 --', monster: '「潜水行程邀约」', flavor: '"一起去诗巴丹吗"',
+    text: '朋友邀你去诗巴丹潜水十天。机会难得。但正好撞上一个项目的关键节点。',
+    choices: [
+      { text: '推掉项目，接上飞机', effects: { hp: 40, connections: 10, money: -25, exp: -10 }, result: '你在40米水深看到了锤头鲨群。那一刻你知道，有些修仙必须在办公室之外完成。', tag: '+40精力 -25灵石', item: '诗巴丹勋章' },
+      { text: '推掉潜水，守住项目', effects: { exp: 25, hp: -10, connections: -5 }, result: '项目按期上线。朋友回来给你看鲨鱼照片，你心里一动但没说什么。延迟满足也是修为。', tag: '+25修为' },
+      { text: '把项目分给团队，短暂离线5天', effects: { exp: 20, hp: 25, connections: 10 }, result: '你信任了团队，团队也没让你失望。回来时你皮肤晒黑了，代码反而看得更清楚。管理的本质是信任。', tag: '+20修为 +25精力' },
+    ]
+  },
+  {
+    id: 'investor_call', realm: { min: 3 },
+    title: '-- 金主问道 --', monster: '「投资人电话」', flavor: '"你的项目我们想投"',
+    text: '一个VC找你，想投你的开源项目。种子轮500万。你面对"保留正职兼职做"和"裸辞创业"两个选择。',
+    choices: [
+      { text: '裸辞创业', effects: { exp: 40, money: 50, hp: -30, connections: 10 }, result: '辞职信那天你手在抖。半年后公司还活着，你瘦了15斤，但那种"每天在做对的事"的感觉回来了。', tag: '+40修为 +50灵石 -30精力', flag: 'founder_path' },
+      { text: '保留正职，做业余项目', effects: { exp: 25, money: 20, hp: -20 }, result: '两头烧，但能承受。一年后项目还在成长，工作也没丢。鸡蛋多放几个篮子。', tag: '+25修为 +20灵石' },
+      { text: '拒绝投资，保持独立', effects: { exp: 20, connections: 5 }, result: 'VC说你错过了最好的时机。但你知道自己不想被DDL推着走。有些修仙需要节奏。', tag: '+20修为' },
+    ]
+  },
+  {
+    id: 'scope_creep', realm: { min: 2 },
+    title: '-- 蔓延之劫 --', monster: '「需求蔓延咒」', flavor: '"加一个小功能就好"',
+    text: '项目上线前三天，业务方又加了一个"很小"的功能。你知道这"很小"的功能会打破三个模块的约束。',
+    choices: [
+      { text: '坚决拒绝，上线后下个版本再做', effects: { exp: 20, connections: -5, hp: 5 }, result: '业务方不高兴但接受了。一周后他自己意识到这个功能其实不重要。说不是修为。', tag: '+20修为' },
+      { text: '加班做进去，硬撑上线', effects: { exp: 10, hp: -25, money: 5 }, result: '上线延期一天。新功能上线当天出了bug。你学到一个教训: 每一个"小功能"都不小。', tag: '-25精力' },
+      { text: '谈判: 做一半功能先上，另一半下个版本', effects: { exp: 30, connections: 10 }, result: '业务满意，团队没过度加班，线上没出事。这就是产品与技术的平衡术。', tag: '+30修为 +10人脉' },
+    ]
+  },
+  {
+    id: 'rival_confrontation', realm: { min: 3 },
+    title: '-- 宿敌再会 --', monster: '「同期劲敌」', flavor: '"他升了P8"',
+    text: '跟你同期入职的同事升了P8，你还在P7。他约你喝酒，桌上他说: "你技术比我强，但不会来事。你知道问题在哪吧。"',
+    choices: [
+      { text: '虚心听他讲，承认自己的短板', effects: { exp: 25, connections: 15, hp: -5 }, result: '他讲了一堆很实在的东西。有些朋友的真话比导师的客套更值钱。你们那天喝到凌晨。', tag: '+25修为 +15人脉', flag: 'rival_ally' },
+      { text: '"我不需要来事，我靠技术"', effects: { exp: 5, connections: -10, hp: -10 }, result: '他没说什么，默默把酒喝完。你们回去后再也没一起吃过饭。有些真话错过就错过了。', tag: '-10人脉' },
+      { text: '反问: 你来事这件事到底怎么做', effects: { exp: 30, connections: 20 }, result: '他被你问住，真正坐下来拆解了他的做法。你俩从那天起变成了最好的互相学习伙伴。', tag: '+30修为 +20人脉' },
+    ]
+  },
+  {
+    id: 'parent_aging', realm: { min: 3 },
+    title: '-- 亲情之劫 --', monster: '「父母健康状况」', flavor: '"你爸最近记性不太好"',
+    text: '老妈打电话说老爸最近健忘，怕是早期认知障碍。你在深圳，他们在老家。你一年回去两次，每次三天。',
+    choices: [
+      { text: '订最近的机票，回去带他检查', effects: { exp: 15, hp: -10, money: -15, connections: 10 }, result: '老爸在飞机上紧张得不得了。检查结果并不严重，只是焦虑。但你那几天的陪伴，老妈记了很久。', tag: '+10人脉 -15灵石', item: '父母体检单' },
+      { text: '远程找医院，让他们自己去', effects: { exp: 5, hp: -5 }, result: '检查结果出来后老爸没有大事，但你在视频里看到他明显老了很多。有些缺席是你后来赚多少钱都补不回来的。', tag: '-5精力' },
+      { text: '跟老板申请在家办公两周，陪他们', effects: { exp: 20, connections: -5, hp: -5 }, result: '老板勉强同意。你在老家办公两周，中间陪老爸去了几次医院。那种慢下来的感觉，你几年没有过了。', tag: '+20修为' },
+    ]
+  },
+  {
+    id: 'salary_nego', realm: { min: 3 },
+    title: '-- 灵石博弈 --', monster: '「年度调薪谈判」', flavor: '"市场价是..."',
+    text: '年度调薪面谈。HR给你默认涨幅8%。你查过同级市场价，你低于市场15%。',
+    choices: [
+      { text: '直接摊牌: 我了解市场价，我要15%', effects: { money: 30, exp: 10, connections: -5 }, result: 'HR请示了上面，最后给了12%。勇气是有市场价的。不要求就永远是默认值。', tag: '+30灵石 +10修为' },
+      { text: '委婉暗示，看老板脸色', effects: { money: 10, connections: 5 }, result: '拿了10%。老板觉得你懂事，但你心里知道自己值更多。温和是有代价的。', tag: '+10灵石 +5人脉' },
+      { text: '先手握外部offer再谈', effects: { money: 50, connections: -15, hp: -10 }, result: '拿了20%，但老板从此对你多了一层警惕。筹码是武器，也是伤害源。', tag: '+50灵石 -15人脉' },
+    ]
+  },
+  {
+    id: 'platform_bet', realm: { min: 4 },
+    title: '-- 大道抉择 --', monster: '「平台化抉择」', flavor: '"自研还是用开源"',
+    text: '你的团队需要一个核心中间件。自研要6个月投入，但可控；用开源快但未来要受制于上游。CTO让你拿方案。',
+    choices: [
+      { text: '自研，长期主义', effects: { exp: 30, hp: -20, money: -10 }, result: '8个月后自研版本上线，你们收获了一个业内闻名的项目。但团队有两个人在这个过程中离职。', tag: '+30修为 -20精力', flag: 'built_platform' },
+      { text: '用开源，快速落地', effects: { exp: 15, hp: 10, money: 10 }, result: '一个月落地，团队松了口气。但两年后开源项目停止维护，你们付出了巨大的迁移成本。', tag: '+15修为 +10灵石' },
+      { text: '基于开源魔改，搞成自己的', effects: { exp: 25, hp: -10 }, result: '一开始是最聪明的路径。半年后你发现自己的魔改版本跟上游差别越来越大，回不去也赶不上。', tag: '+25修为' },
+    ]
+  },
+  {
+    id: 'hackathon', realm: { min: 2 },
+    title: '-- 奇阵试炼 --', monster: '「黑客松最终夜」', flavor: '"还有8小时"',
+    text: '公司黑客松最后8小时。你的项目demo有一个关键bug。团队另外三人已经累瘫。离决赛路演4小时。',
+    choices: [
+      { text: '一个人咬牙修bug到路演前', effects: { exp: 30, hp: -30, connections: 5 }, result: '路演时演示完美，拿了二等奖。颁奖时你差点睡着。有些时刻，燃烧自己就是修炼。', tag: '+30修为 -30精力' },
+      { text: '放弃那个功能，展示已有的部分', effects: { exp: 15, connections: 10, hp: -5 }, result: '演示没bug但体量小，拿了优胜奖。团队没累倒。交付是平衡的艺术。', tag: '+15修为 +10人脉' },
+      { text: '现场发现另一个切入点重做demo', effects: { exp: 40, hp: -15, connections: 15 }, result: '你用2小时换了个演示角度，居然赢了一等奖。评委说没见过这样的操作。灵光一闪也是修为。', tag: '+40修为 +15人脉' },
+    ]
+  },
+];
+
+// ==================== 渡劫事件 ====================
+const TRIBULATIONS = [
+  {
+    id: 'trib_0',
+    title: '== 渡劫: 试用期转正 ==',
+    text: '三个月到了。HR请你做一个转正述职。你的mentor会打分。leader会拍板。',
+    successText: '你清晰地复盘了三件事的收获和两件事的教训。mentor说: "这小伙子是个料。"转正通过，境界提升！',
+    failText: '你讲成了流水账，PPT有13页。mentor皱了皱眉。转正延期一个月。',
+    threshold: 0.45,
+  },
+  {
+    id: 'trib_1',
+    title: '== 渡劫: 架构评审 ==',
+    text: '你的方案要在架构委员会上过审。台下坐着五个 P9。你感到一股无形的压力。',
+    successText: '方案经受住了所有质疑。首席架构师说了句"考虑得很周全"。渡劫成功！',
+    failText: '第三个问题你答不上来。会后leader说"下次准备充分点"。劫雷反噬。',
+    threshold: 0.5,
+  },
+  {
+    id: 'trib_2',
+    title: '== 渡劫: 首次带人考核 ==',
+    text: '你被提拔为团队负责人。但团队里有一个比你资历深的老员工，他并不服你。',
+    successText: '你用实力和真诚赢得了信任。三个月后，那个老员工成了你最可靠的帮手。修为大进！',
+    failText: '你试图用权威压人，团队氛围急剧恶化。两个月后你被调回IC岗。渡劫失败。',
+    threshold: 0.55,
+  },
+  {
+    id: 'trib_3',
+    title: '== 渡劫: 跨部门项目交付 ==',
+    text: '一个涉及三个部门的关键项目，你被任命为 owner。每个部门都有自己的议程。',
+    successText: '你用半年时间协调、妥协、推进。项目上线那天CEO发来邮件特别感谢。渡劫成功！',
+    failText: '两个部门之间爆发了冲突。项目延期半年，最终砍到只做一半。你背了大部分锅。',
+    threshold: 0.6,
+  },
+  {
+    id: 'trib_4',
+    title: '== 渡劫: 技术VP任职答辩 ==',
+    text: 'CEO要提你做技术VP。你需要在董事会上做一次45分钟的答辩。',
+    successText: '你用数据、故事和判断力征服了董事会。有位独董甚至主动要了你的联系方式。渡劫成功！',
+    failText: '你讲技术细节过多，战略层面薄弱。CEO会后说"你再沉淀一年"。劫雷反噬。',
+    threshold: 0.65,
+  },
+  {
+    id: 'trib_5',
+    title: '== 渡劫: CTO一对一 ==',
+    text: '现任CTO离任，CEO找你一对一。"我想让你接这个位置，但你准备好了吗？"',
+    successText: '你没有夸夸其谈，而是讲了三个你看到的公司技术问题和解决思路。CEO说"就是你了"。飞升！',
+    failText: '你表达了过多的自我怀疑，也表达了过多的野心。CEO笑了笑说"我们再看看"。错过了一个时代。',
+    threshold: 0.7,
+  },
+];
+
+// ==================== 结局 ====================
+const ENDINGS = {
+  ascend: {
+    title: '飞 升 成 功',
+    subtitle: '财务自由 &middot; 人间逍遥',
+    text: '你完成了从实习生到CTO的全部修炼。站在写字楼顶层，你回望这段旅程。每一次加班、每一次选择、每一次摸鱼和每一次拼命，都是修行的一部分。你终于明白: 所谓修仙，不过是认真活过每一天。',
+  },
+  burnout: {
+    title: '走 火 入 魔',
+    subtitle: '精力耗尽 &middot; 强制下线',
+    text: '你的精力归零了。身体发出了最后的警告: 持续性头痛、失眠、对代码产生生理性厌恶。医生开的诊断书上写着"职业倦怠综合征"。你决定休息一段时间。修仙路漫漫，有时候停下来不是放弃，是为了走得更远。',
+  },
+  slacker: {
+    title: '大 道 至 简',
+    subtitle: '摸鱼大师 &middot; 境界超脱',
+    text: '你的摸鱼值突破了临界点。你悟出了一个道理: 在996的世界里，能持续摸鱼而不被开除，本身就是一种顶级能力。你在公司存活了十年，工作量最小但从未被裁员。有人叫你"隐形人"，你称之为"无为而治"。',
+  },
+  rich: {
+    title: '灵 石 成 山',
+    subtitle: '副业起飞 &middot; 财务自由',
+    text: '你攒下了足够多的灵石，靠副业收入超过了工资。你提交了离职申请，HR问为什么。你说: "我的修仙之路不在这栋楼里了。"走出公司大门那一刻，阳光格外刺眼。',
+  },
+  founder: {
+    title: '自 立 山 门',
+    subtitle: '创业飞升 &middot; 新天地',
+    text: '你拿了投资，带着几个最信任的兄弟，租了一间小办公室。第一个月工资发不出来。第三个月拿到了第一个客户。第六个月你在老婆面前哭了一次。第九个月公司有了自己的节奏。两年后，你成为了当初那个劝你别创业的前辈口中"那个做成了的人"。',
+  },
+  sage: {
+    title: '得 道 成 圣',
+    subtitle: '淡泊名利 &middot; 心境通明',
+    text: '你没升到最高，没赚到最多，但你活成了自己想要的样子。周末潜水，平时写代码，家人身心健康。朋友圈不发朋友圈。年底回望这一年，你发现修为最深的不是代码，是对自己和世界的接纳。真正的圣人都隐在 996 的缝隙里。',
+  },
+  mentor: {
+    title: '师 道 传 承',
+    subtitle: '桃李满天下 &middot; 江湖有名',
+    text: '你带出了二十多个P7+。他们散布在各家公司，成了新的骨干。每年春节你们聚一次，吃饭喝酒。有人说"没有你就没有我现在"。你笑: "你们撑起了我，不是我撑起了你们。"这就是师道的回流。',
+  },
+  exile: {
+    title: '大 隐 于 市',
+    subtitle: '平凡为道 &middot; 小国寡民',
+    text: '你没飞升，也没走火入魔。你就这样平平稳稳地工作了很多年。每天按时上下班，回家做饭，陪家人。周末偶尔打打游戏，看场电影。你从来不是别人嘴里的"厉害角色"，但你也从来不焦虑。修仙到最后，不过是一个"如是"。',
+  },
+};
+
+// ==================== 引擎 ====================
+
+function applyArchetypeMods() {
+  const a = ARCHETYPES[state.archetype];
+  if (!a) return;
+  const m = a.startMods || {};
+  Object.keys(m).forEach(k => { state[k] = (state[k] || 0) + m[k]; });
+}
+
+function nextRealm() {
+  if (state.realm < REALMS.length - 1) {
+    const next = REALMS[state.realm + 1];
+    if (state.exp >= next.exp) return true;
+  }
+  return false;
+}
+
+function checkEnding() {
+  if (state.hp <= 0) return 'burnout';
+  if (state.slacking >= 100) return 'slacker';
+  if (state.flags.founder_path && state.money >= 80 && state.exp >= 400) return 'founder';
+  if (state.money >= 250) return 'rich';
+  if (state.realm >= REALMS.length - 1 && state.exp >= 2200) return 'ascend';
+  if (state.day >= 180 && state.hp >= 80 && state.connections >= 40 && state.slacking < 60) return 'sage';
+  if (state.connections >= 100 && state.flags.has_disciple) return 'mentor';
+  if (state.day >= 250) return 'exile';
+  return null;
+}
+
+function eventAvailable(e) {
+  if (state.seenEvents.includes(e.id) && state.seenEvents.length < EVENTS.length * 0.7) return false;
+  if (e.realm) {
+    if (e.realm.min !== undefined && state.realm < e.realm.min) return false;
+    if (e.realm.max !== undefined && state.realm > e.realm.max) return false;
+  }
+  if (e.requires) {
+    for (const flag of e.requires) if (!state.flags[flag]) return false;
+  }
+  return true;
+}
+
+function pickEvent() {
+  if (state.queuedEvents.length > 0) {
+    const id = state.queuedEvents.shift();
+    const e = EVENTS.find(x => x.id === id);
+    if (e) return e;
+  }
+  const available = EVENTS.filter(eventAvailable);
+  if (available.length === 0) return EVENTS[Math.floor(Math.random() * EVENTS.length)];
+  return available[Math.floor(Math.random() * available.length)];
+}
+
+function pickTribulation() {
+  const idx = Math.min(state.realm, TRIBULATIONS.length - 1);
+  return TRIBULATIONS[idx];
+}
+
+function getMult(key, fallback = 1) {
+  const a = ARCHETYPES[state.archetype];
+  if (!a) return fallback;
+  if (key === 'exp' && a.expMult) return a.expMult;
+  if (key === 'hp' && a.hpMult) return a.hpMult;
+  if (key === 'money' && a.moneyMult) return a.moneyMult;
+  return fallback;
+}
+
+function applyEffects(effects) {
+  const lines = [];
+  if (effects.exp) {
+    const v = effects.exp > 0 ? Math.round(effects.exp * getMult('exp')) : effects.exp;
+    state.exp = Math.max(0, state.exp + v);
+    lines.push(v > 0 ? `<span class="gain">修为 +${v}</span>` : `<span class="lose">修为 ${v}</span>`);
+  }
+  if (effects.hp) {
+    const v = effects.hp > 0 ? Math.round(effects.hp * getMult('hp')) : effects.hp;
+    state.hp = Math.min(state.maxHp, Math.max(0, state.hp + v));
+    lines.push(v > 0 ? `<span class="gain">精力 +${v}</span>` : `<span class="lose">精力 ${v}</span>`);
+  }
+  if (effects.money) {
+    const v = effects.money > 0 ? Math.round(effects.money * getMult('money')) : effects.money;
+    state.money = Math.max(0, state.money + v);
+    lines.push(v > 0 ? `<span class="gain">灵石 +${v}</span>` : `<span class="lose">灵石 ${v}</span>`);
+  }
+  if (effects.connections) {
+    state.connections = Math.max(0, state.connections + effects.connections);
+    lines.push(effects.connections > 0 ? `<span class="gain">人脉 +${effects.connections}</span>` : `<span class="lose">人脉 ${effects.connections}</span>`);
+  }
+  if (effects.slacking) {
+    state.slacking += effects.slacking;
+    lines.push(`<span class="event">摸鱼 +${effects.slacking}</span>`);
+  }
+  return lines.join('  ');
+}
+
+function renderStats() {
+  return `<div class="stats-bar">
+    <span>HP ${state.hp}/${state.maxHp}</span>
+    <span>修为 ${state.exp}</span>
+    <span>灵石 ${state.money}</span>
+    <span>人脉 ${state.connections}</span>
+  </div>`;
+}
+
+function renderTitle() {
+  return `
+    <div class="title-art">
+      <div style="font-size:11px; color:#996600">- - - - - - - - - - -</div>
+      <div class="big">职 场 修 仙</div>
+      <div style="font-size:12px; margin:4px 0">模 拟 器 v2</div>
+      <div style="font-size:11px; color:#996600">- - - - - - - - - - -</div>
+      <div style="margin-top:16px; font-size:12px; line-height:1.9">
+        从练气期（实习生）起步<br>
+        修炼至渡劫飞升（CTO）<br><br>
+        <span style="color:#cc8800">修为</span> 决定境界突破<br>
+        <span style="color:#cc8800">精力</span> 归零则走火入魔<br>
+        <span style="color:#cc8800">摸鱼</span> 爆表则大道至简<br>
+        <span style="color:#cc8800">灵石</span> 攒够可财务自由<br>
+        <span style="color:#cc8800">人脉</span> 决定渡劫成功率
+      </div>
+      <div class="prompt" style="margin-top:20px">[ 按 A 或 OK 选择流派 ]</div>
+    </div>`;
+}
+
+function renderArchetype() {
+  const ids = Object.keys(ARCHETYPES);
+  let html = `<div class="scene-title" style="font-size:14px; margin-top:10px">选 择 你 的 流 派</div>`;
+  html += `<div class="divider">= = = = = = = =</div>`;
+  html += `<div style="font-size:11px; color:#996600; text-align:center; margin-bottom:12px">一旦选定，伴你一生</div>`;
+  ids.forEach((id, i) => {
+    const a = ARCHETYPES[id];
+    const sel = i === state.menuIndex ? 'selected' : '';
+    const arrow = i === state.menuIndex ? '&#9654; ' : '  ';
+    html += `<div class="choice ${sel}" onclick="selectArchetype(${i})">
+      <span class="key">${arrow}</span><span style="font-size:14px">${a.name}</span>
+      <span class="tag">${a.flavor}<br>${a.desc}</span>
+    </div>`;
+  });
+  html += `<div class="prompt">[ 方向键切换 &middot; A 确认 ]</div>`;
+  return html;
+}
+
+function renderEvent() {
+  const e = state.currentEvent;
+  const r = REALMS[state.realm];
+  let html = renderStats();
+  html += `<div style="font-size:11px;color:#996600;margin-bottom:8px">${r.name}（${r.title}）&middot; 第${state.day}天 &middot; ${ARCHETYPES[state.archetype].name}</div>`;
+  html += `<div class="scene-title">${e.title}</div>`;
+  html += `<div class="scene-title" style="font-size:15px">${e.monster}</div>`;
+  html += `<div class="scene-flavor">${e.flavor}</div>`;
+  html += `<div class="narrative">${e.text}</div>`;
+  html += `<div class="divider">- - - - - -</div>`;
+
+  if (state.phase === 'choose') {
+    e.choices.forEach((c, i) => {
+      const sel = i === state.selectedChoice ? '&#9654; ' : '  ';
+      html += `<div class="choice ${i === state.selectedChoice ? 'selected' : ''}" onclick="selectChoice(${i})">
+        <span class="key">${sel}</span>${String.fromCharCode(65 + i)}. ${c.text}
+        <span class="tag">${c.tag || ''}</span>
+      </div>`;
+    });
+    html += `<div class="prompt">[ A/OK 确认选择 &middot; 方向键切换 ]</div>`;
+  } else {
+    const c = e.choices[state.selectedChoice];
+    html += `<div class="result-text">${c.result}</div>`;
+    html += `<div class="result-text" style="margin-top:8px">${state.resultText}</div>`;
+    if (c.item && state.phase === 'result') {
+      html += `<div class="result-text"><span class="item">获得物品: ${c.item}</span></div>`;
+    }
+    if (state.phase === 'realm_up') {
+      const nr = REALMS[state.realm];
+      html += `<div class="realm-up">*** 突破！${nr.name}（${nr.title}）***</div>`;
+    }
+    html += `<div class="prompt">[ 按 A 继续 ]</div>`;
+  }
+
+  return html;
+}
+
+function renderTribulation() {
+  const t = state.currentEvent;
+  let html = renderStats();
+  html += `<div class="scene-title" style="font-size:15px; color:#ffdd44">${t.title}</div>`;
+  html += `<div class="narrative">${t.text}</div>`;
+
+  if (state.phase === 'choose') {
+    const rate = calcTribSuccess(t);
+    html += `<div class="battle-stats">
+      修为: ${state.exp} &middot; 人脉: ${state.connections} &middot; 精力: ${state.hp}<br>
+      预估渡劫成功率: <span style="color:#ffdd44">${Math.floor(rate * 100)}%</span>
+    </div>`;
+    html += `<div class="choice ${state.selectedChoice === 0 ? 'selected' : ''}" onclick="selectChoice(0)"><span class="key">${state.selectedChoice === 0 ? '&#9654; ' : '  '}</span>[A] 渡劫</div>`;
+    html += `<div class="choice ${state.selectedChoice === 1 ? 'selected' : ''}" onclick="selectChoice(1)"><span class="key">${state.selectedChoice === 1 ? '&#9654; ' : '  '}</span>[B] 暂避锋芒</div>`;
+    html += `<div class="prompt">[ 选择你的命运 ]</div>`;
+  } else {
+    html += `<div class="result-text">${state.resultText}</div>`;
+    if (state.phase === 'realm_up') {
+      const nr = REALMS[state.realm];
+      html += `<div class="realm-up">*** 渡劫成功！${nr.name}（${nr.title}）***</div>`;
+    }
+    html += `<div class="prompt">[ 按 A 继续 ]</div>`;
+  }
+  return html;
+}
+
+function calcTribSuccess(t) {
+  const nextExp = REALMS[state.realm + 1]?.exp || 2500;
+  const base = (state.exp / nextExp) * 0.5;
+  const connBonus = state.connections * 0.003;
+  const hpBonus = (state.hp / state.maxHp) * 0.15;
+  const slackPenalty = state.slacking * 0.001;
+  const flagBonus = (state.flags.saved_prod ? 0.05 : 0) + (state.flags.public_speaker ? 0.05 : 0) + (state.flags.met_elder ? 0.03 : 0);
+  return Math.max(0.15, Math.min(0.95, base + connBonus + hpBonus - slackPenalty + flagBonus));
+}
+
+function renderEnding() {
+  const e = ENDINGS[state.ending];
+  const r = REALMS[state.realm];
+  let html = `
+    <div class="ending-title">${e.title}</div>
+    <div class="scene-flavor">${e.subtitle}</div>
+    <div class="divider">= = = = = = = =</div>
+    <div class="ending-summary">${e.text}</div>
+    <div class="divider">= = = = = = = =</div>
+    <div class="ending-summary">
+      流派: ${ARCHETYPES[state.archetype].name}<br>
+      最终境界: ${r.name}（${r.title}）<br>
+      存活天数: ${state.day}天<br>
+      总修为: ${state.exp} &middot; 灵石: ${state.money}<br>
+      人脉: ${state.connections} &middot; 摸鱼值: ${state.slacking}<br>
+      做出了 ${state.totalChoices} 次选择
+    </div>`;
+  if (state.items.length > 0) {
+    html += `<div class="items-list">获得物品: ${state.items.join('、')}</div>`;
+  }
+  html += `<div class="prompt">[ 按 A 重新修炼 ]</div>`;
+  return html;
+}
+
+function render() {
+  const screen = document.getElementById('screen');
+  let html = '';
+  switch (state.screen) {
+    case 'title': html = renderTitle(); break;
+    case 'archetype': html = renderArchetype(); break;
+    case 'event': html = renderEvent(); break;
+    case 'tribulation': html = renderTribulation(); break;
+    case 'ending': html = renderEnding(); break;
+  }
+  screen.innerHTML = html;
+  screen.scrollTop = 0;
+}
+
+function selectChoice(i) {
+  if (state.phase !== 'choose') return;
+  state.selectedChoice = i;
+  render();
+}
+
+function selectArchetype(i) {
+  state.menuIndex = i;
+  render();
+}
+
+function goToArchetype() {
+  state.screen = 'archetype';
+  state.menuIndex = 0;
+  render();
+}
+
+function startGame() {
+  const ids = Object.keys(ARCHETYPES);
+  const archetype = ids[state.menuIndex];
+  Object.assign(state, {
+    screen: 'event',
+    archetype,
+    hp: 100, maxHp: 100,
+    exp: 0, money: 0,
+    connections: 0, slacking: 0,
+    realm: 0, day: 0,
+    seenEvents: [], queuedEvents: [],
+    items: [], flags: {},
+    currentEvent: null,
+    selectedChoice: 0, menuIndex: 0, phase: 'choose',
+    resultText: '', ending: null, totalChoices: 0,
+  });
+  applyArchetypeMods();
+  nextDay();
+}
+
+function nextDay() {
+  state.day++;
+
+  const ending = checkEnding();
+  if (ending) {
+    state.ending = ending;
+    state.screen = 'ending';
+    render();
+    return;
+  }
+
+  if (nextRealm() && state.day > 3) {
+    const t = pickTribulation();
+    state.currentEvent = t;
+    state.screen = 'tribulation';
+    state.phase = 'choose';
+    state.selectedChoice = 0;
+    render();
+    return;
+  }
+
+  const e = pickEvent();
+  state.currentEvent = e;
+  if (!state.seenEvents.includes(e.id)) state.seenEvents.push(e.id);
+  state.screen = 'event';
+  state.phase = 'choose';
+  state.selectedChoice = 0;
+  render();
+}
+
+function confirmChoice() {
+  if (state.screen === 'title') { goToArchetype(); return; }
+  if (state.screen === 'archetype') { startGame(); return; }
+  if (state.screen === 'ending') { state.screen = 'title'; state.menuIndex = 0; render(); return; }
+
+  if (state.phase !== 'choose') {
+    nextDay();
+    return;
+  }
+
+  state.totalChoices++;
+  const e = state.currentEvent;
+
+  if (state.screen === 'tribulation') {
+    const successRate = calcTribSuccess(e);
+    if (state.selectedChoice === 0) {
+      if (Math.random() < successRate) {
+        state.realm++;
+        state.maxHp += 20;
+        state.hp = Math.min(state.maxHp, state.hp + 30);
+        state.resultText = `<span class="gain">${e.successText}</span>`;
+        state.phase = 'realm_up';
+      } else {
+        state.hp = Math.max(0, state.hp - 20);
+        state.exp = Math.max(0, state.exp - 30);
+        state.resultText = `<span class="lose">${e.failText}</span>`;
+        state.phase = 'result';
+      }
+    } else {
+      state.resultText = '你选择韬光养晦，等待更好的时机。';
+      state.phase = 'result';
+    }
+    render();
+    return;
+  }
+
+  const c = e.choices[state.selectedChoice];
+  state.resultText = applyEffects(c.effects);
+  if (c.item) state.items.push(c.item);
+  if (c.flag) state.flags[c.flag] = true;
+  if (c.next) state.queuedEvents.push(c.next);
+
+  if (nextRealm()) {
+    state.phase = 'result';
+  } else {
+    state.phase = 'result';
+  }
+
+  render();
+}
+
+function handleInput(key) {
+  switch (key) {
+    case 'a':
+    case 'ok':
+      if (state.screen === 'title') { goToArchetype(); return; }
+      if (state.screen === 'archetype') { startGame(); return; }
+      confirmChoice();
+      break;
+    case 'b':
+      if (state.screen === 'archetype') { state.screen = 'title'; render(); }
+      break;
+    case 'up':
+    case 'left':
+      if (state.screen === 'archetype') {
+        state.menuIndex = Math.max(0, state.menuIndex - 1);
+        render();
+      } else if (state.phase === 'choose') {
+        state.selectedChoice = Math.max(0, state.selectedChoice - 1);
+        render();
+      }
+      break;
+    case 'down':
+    case 'right':
+      if (state.screen === 'archetype') {
+        const max = Object.keys(ARCHETYPES).length - 1;
+        state.menuIndex = Math.min(max, state.menuIndex + 1);
+        render();
+      } else if (state.phase === 'choose' && state.currentEvent) {
+        const max = state.screen === 'tribulation' ? 1 : (state.currentEvent.choices?.length || 2) - 1;
+        state.selectedChoice = Math.min(max, state.selectedChoice + 1);
+        render();
+      }
+      break;
+  }
+}
+
+document.addEventListener('keydown', (e) => {
+  switch (e.key) {
+    case 'ArrowUp': case 'w': handleInput('up'); break;
+    case 'ArrowDown': case 's': handleInput('down'); break;
+    case 'ArrowLeft': handleInput('left'); break;
+    case 'ArrowRight': handleInput('right'); break;
+    case 'Enter': case ' ': case 'j': handleInput('a'); break;
+    case 'Escape': case 'k': handleInput('b'); break;
+  }
+  e.preventDefault();
+});
+
+render();
+</script>
+
+</body>
+</html>
