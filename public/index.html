@@ -20,28 +20,32 @@
   image-rendering: pixelated;
 }
 
+html, body { height: 100%; overflow: hidden; }
+
 body {
   background: #1a1a2e;
   background-image:
     linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px),
     linear-gradient(0deg, rgba(255,255,255,0.02) 1px, transparent 1px);
   background-size: 8px 8px;
-  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Zpix', 'Press Start 2P', 'VT323', monospace;
-  overflow: auto;
   color: #ffb000;
-  padding: 12px 0;
+  padding: 8px 0;
 }
 
 .machine {
   width: 500px;
   max-width: 96vw;
+  height: calc(100vh - 20px);
+  max-height: 820px;
   background: #2a2a3e;
-  padding: 20px 20px 24px;
+  padding: 14px 18px 16px;
   position: relative;
+  display: flex;
+  flex-direction: column;
   box-shadow:
     0 0 0 2px #4a4a5e,
     0 0 0 6px #15152a,
@@ -56,8 +60,9 @@ body {
   font-family: 'Press Start 2P', monospace;
   font-size: 9px;
   letter-spacing: 2px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   text-transform: uppercase;
+  flex: 0 0 auto;
 }
 
 .machine-sublabel {
@@ -66,13 +71,17 @@ body {
   font-family: 'Press Start 2P', monospace;
   font-size: 6px;
   letter-spacing: 2px;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
+  flex: 0 0 auto;
 }
 
 .screen-bezel {
   background: #0d0d15;
   padding: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
   box-shadow:
     inset 0 0 0 2px #000,
     0 0 0 2px #4a4a5e;
@@ -81,22 +90,24 @@ body {
 .screen {
   background: #0a0a0a;
   padding: 14px 16px;
-  min-height: 560px;
-  max-height: 560px;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
   overflow: hidden;
   position: relative;
   color: #ffb000;
   font-family: 'Zpix', 'VT323', monospace;
   font-size: 14px;
-  line-height: 1.6;
-}
-
-@media (max-height: 720px) {
-  .screen { min-height: 500px; max-height: 500px; }
+  line-height: 1.55;
 }
 
 @media (max-width: 420px) {
   .screen { padding: 12px; font-size: 13px; }
+}
+
+@media (max-height: 640px) {
+  .screen { font-size: 12px; line-height: 1.45; }
+  .machine-sublabel { display: none; }
 }
 
 .screen::before {
@@ -239,18 +250,19 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 0 8px;
+  flex: 0 0 auto;
 }
 
 .dpad {
   display: grid;
-  grid-template-columns: 40px 40px 40px;
-  grid-template-rows: 40px 40px 40px;
+  grid-template-columns: 36px 36px 36px;
+  grid-template-rows: 36px 36px 36px;
   gap: 0;
 }
 
 .dpad-btn {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   background: #15151f;
   border: 0;
   color: #ffb000;
@@ -278,13 +290,13 @@ body {
 .ab-buttons {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
 }
 
 .ab-btn {
-  width: 52px;
-  height: 52px;
+  width: 46px;
+  height: 46px;
   border: 0;
   font-family: 'Press Start 2P', monospace;
   font-size: 16px;
@@ -330,8 +342,9 @@ body {
   font-family: 'Press Start 2P', 'Zpix', monospace;
   color: #4a4a6a;
   font-size: 7px;
-  margin-top: 18px;
+  margin-top: 10px;
   letter-spacing: 2px;
+  flex: 0 0 auto;
 }
 
 .realm-up {
@@ -439,21 +452,21 @@ const ARCHETYPES = {
   hacker: {
     name: '钻研派',
     flavor: '"代码写到极致，世界自然给你让路"',
-    desc: '技术深度优先。起始修为+10，修为获取+20%。',
+    desc: '技术深度优先，修为积累更快。',
     startMods: { exp: 10 },
     expMult: 1.2,
   },
   glider: {
     name: '滑行派',
     flavor: '"工作是一阵风，生活才是海"',
-    desc: '平衡派。精力上限+30，精力恢复+50%。',
+    desc: '平衡派，精力充沛，恢复也快。',
     startMods: { maxHp: 30, hp: 30 },
     hpMult: 1.5,
   },
   climber: {
     name: '攀登派',
     flavor: '"修仙路上，人就是最大的法宝"',
-    desc: '职场政治家。起始人脉+15，灵石获取+25%。',
+    desc: '职场政治家，起点人脉广，灵石入袋多。',
     startMods: { connections: 15 },
     moneyMult: 1.25,
   },
@@ -1049,15 +1062,30 @@ function eventAvailable(e) {
   return true;
 }
 
+function shuffleArr(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function withShuffledChoices(e) {
+  return Object.assign({}, e, { choices: shuffleArr(e.choices) });
+}
+
 function pickEvent() {
   if (state.queuedEvents.length > 0) {
     const id = state.queuedEvents.shift();
     const e = EVENTS.find(x => x.id === id);
-    if (e) return e;
+    if (e) return withShuffledChoices(e);
   }
   const available = EVENTS.filter(eventAvailable);
-  if (available.length === 0) return EVENTS[Math.floor(Math.random() * EVENTS.length)];
-  return available[Math.floor(Math.random() * available.length)];
+  const base = available.length === 0
+    ? EVENTS[Math.floor(Math.random() * EVENTS.length)]
+    : available[Math.floor(Math.random() * available.length)];
+  return withShuffledChoices(base);
 }
 
 function pickTribulation() {
@@ -1133,16 +1161,17 @@ function renderTitle() {
 
 function renderArchetype() {
   const ids = Object.keys(ARCHETYPES);
-  let html = `<div class="scene-title" style="font-size:14px; margin-top:10px">选 择 你 的 流 派</div>`;
+  let html = `<div class="scene-title" style="font-size:14px; margin-top:8px">选 择 你 的 流 派</div>`;
   html += `<div class="divider">= = = = = = = =</div>`;
-  html += `<div style="font-size:11px; color:#996600; text-align:center; margin-bottom:12px">一旦选定，伴你一生</div>`;
+  html += `<div style="font-size:11px; color:#996600; text-align:center; margin-bottom:10px">一旦选定，伴你一生</div>`;
   ids.forEach((id, i) => {
     const a = ARCHETYPES[id];
     const sel = i === state.menuIndex ? 'selected' : '';
     const arrow = i === state.menuIndex ? '&#9654; ' : '  ';
-    html += `<div class="choice ${sel}" onclick="selectArchetype(${i})">
-      <span class="key">${arrow}</span><span style="font-size:14px">${a.name}</span>
-      <span class="tag">${a.flavor}<br>${a.desc}</span>
+    html += `<div class="choice ${sel}" style="padding:6px 8px;margin:4px 0" onclick="selectArchetype(${i})">
+      <div><span class="key">${arrow}</span><span style="font-size:14px">${a.name}</span></div>
+      <div style="font-size:11px;padding-left:20px;margin-top:2px;line-height:1.4;color:${i === state.menuIndex ? '#331a00' : '#996600'}">${a.flavor}</div>
+      <div style="font-size:11px;padding-left:20px;line-height:1.4;color:${i === state.menuIndex ? '#331a00' : '#996600'}">${a.desc}</div>
     </div>`;
   });
   html += `<div class="prompt">[ 方向键切换 &middot; A 确认 ]</div>`;
@@ -1152,8 +1181,10 @@ function renderArchetype() {
 function renderEvent() {
   const e = state.currentEvent;
   const r = REALMS[state.realm];
-  let html = renderStats();
-  html += `<div style="font-size:11px;color:#996600;margin-bottom:8px">${r.name}（${r.title}）&middot; 第${state.day}天 &middot; ${ARCHETYPES[state.archetype].name}</div>`;
+  let html = `<div style="font-size:10px;color:#996600;border-bottom:2px dotted #996600;padding-bottom:6px;margin-bottom:8px;display:flex;justify-content:space-between;letter-spacing:1px">
+    <span>${r.name} &middot; ${r.title}</span>
+    <span>${ARCHETYPES[state.archetype].name} &middot; 第${state.day}天</span>
+  </div>`;
   html += `<div class="scene-title">${e.title}</div>`;
   html += `<div class="scene-title" style="font-size:15px">${e.monster}</div>`;
   html += `<div class="scene-flavor">${e.flavor}</div>`;
@@ -1165,16 +1196,14 @@ function renderEvent() {
       const sel = i === state.selectedChoice ? '&#9654; ' : '  ';
       html += `<div class="choice ${i === state.selectedChoice ? 'selected' : ''}" onclick="selectChoice(${i})">
         <span class="key">${sel}</span>${String.fromCharCode(65 + i)}. ${c.text}
-        <span class="tag">${c.tag || ''}</span>
       </div>`;
     });
     html += `<div class="prompt">[ A/OK 确认选择 &middot; 方向键切换 ]</div>`;
   } else {
     const c = e.choices[state.selectedChoice];
     html += `<div class="result-text">${c.result}</div>`;
-    html += `<div class="result-text" style="margin-top:8px">${state.resultText}</div>`;
-    if (c.item && state.phase === 'result') {
-      html += `<div class="result-text"><span class="item">获得物品: ${c.item}</span></div>`;
+    if (c.item) {
+      html += `<div class="result-text"><span class="item">&#9679; 获得: ${c.item}</span></div>`;
     }
     if (state.phase === 'realm_up') {
       const nr = REALMS[state.realm];
@@ -1188,18 +1217,20 @@ function renderEvent() {
 
 function renderTribulation() {
   const t = state.currentEvent;
-  let html = renderStats();
+  const r = REALMS[state.realm];
+  let html = `<div style="font-size:10px;color:#996600;border-bottom:2px dotted #996600;padding-bottom:6px;margin-bottom:8px;display:flex;justify-content:space-between;letter-spacing:1px">
+    <span>${r.name} &middot; ${r.title}</span>
+    <span>${ARCHETYPES[state.archetype].name} &middot; 第${state.day}天</span>
+  </div>`;
   html += `<div class="scene-title" style="font-size:15px; color:#ffdd44">${t.title}</div>`;
   html += `<div class="narrative">${t.text}</div>`;
 
   if (state.phase === 'choose') {
     const rate = calcTribSuccess(t);
-    html += `<div class="battle-stats">
-      修为: ${state.exp} &middot; 人脉: ${state.connections} &middot; 精力: ${state.hp}<br>
-      预估渡劫成功率: <span style="color:#ffdd44">${Math.floor(rate * 100)}%</span>
-    </div>`;
-    html += `<div class="choice ${state.selectedChoice === 0 ? 'selected' : ''}" onclick="selectChoice(0)"><span class="key">${state.selectedChoice === 0 ? '&#9654; ' : '  '}</span>[A] 渡劫</div>`;
-    html += `<div class="choice ${state.selectedChoice === 1 ? 'selected' : ''}" onclick="selectChoice(1)"><span class="key">${state.selectedChoice === 1 ? '&#9654; ' : '  '}</span>[B] 暂避锋芒</div>`;
+    const level = rate >= 0.75 ? '胜券在握' : rate >= 0.55 ? '七分把握' : rate >= 0.35 ? '胜负参半' : rate >= 0.2 ? '凶多吉少' : '九死一生';
+    html += `<div class="battle-stats">心境自察: <span style="color:#ffdd44">${level}</span></div>`;
+    html += `<div class="choice ${state.selectedChoice === 0 ? 'selected' : ''}" onclick="selectChoice(0)"><span class="key">${state.selectedChoice === 0 ? '&#9654; ' : '  '}</span>A. 渡劫</div>`;
+    html += `<div class="choice ${state.selectedChoice === 1 ? 'selected' : ''}" onclick="selectChoice(1)"><span class="key">${state.selectedChoice === 1 ? '&#9654; ' : '  '}</span>B. 暂避锋芒</div>`;
     html += `<div class="prompt">[ 选择你的命运 ]</div>`;
   } else {
     html += `<div class="result-text">${state.resultText}</div>`;
@@ -1233,11 +1264,7 @@ function renderEnding() {
     <div class="divider">= = = = = = = =</div>
     <div class="ending-summary">
       流派: ${ARCHETYPES[state.archetype].name}<br>
-      最终境界: ${r.name}（${r.title}）<br>
-      存活天数: ${state.day}天<br>
-      总修为: ${state.exp} &middot; 灵石: ${state.money}<br>
-      人脉: ${state.connections} &middot; 摸鱼值: ${state.slacking}<br>
-      做出了 ${state.totalChoices} 次选择
+      最终境界: ${r.name}（${r.title}）
     </div>`;
   if (state.items.length > 0) {
     html += `<div class="items-list">获得物品: ${state.items.join('、')}</div>`;
