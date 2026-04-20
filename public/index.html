@@ -1181,7 +1181,8 @@ function renderArchetype() {
 function renderEvent() {
   const e = state.currentEvent;
   const r = REALMS[state.realm];
-  let html = `<div style="font-size:10px;color:#996600;border-bottom:2px dotted #996600;padding-bottom:6px;margin-bottom:8px;display:flex;justify-content:space-between;letter-spacing:1px">
+  let html = renderStats();
+  html += `<div style="font-size:10px;color:#996600;margin-bottom:6px;display:flex;justify-content:space-between;letter-spacing:1px">
     <span>${r.name} &middot; ${r.title}</span>
     <span>${ARCHETYPES[state.archetype].name} &middot; 第${state.day}天</span>
   </div>`;
@@ -1218,7 +1219,8 @@ function renderEvent() {
 function renderTribulation() {
   const t = state.currentEvent;
   const r = REALMS[state.realm];
-  let html = `<div style="font-size:10px;color:#996600;border-bottom:2px dotted #996600;padding-bottom:6px;margin-bottom:8px;display:flex;justify-content:space-between;letter-spacing:1px">
+  let html = renderStats();
+  html += `<div style="font-size:10px;color:#996600;margin-bottom:6px;display:flex;justify-content:space-between;letter-spacing:1px">
     <span>${r.name} &middot; ${r.title}</span>
     <span>${ARCHETYPES[state.archetype].name} &middot; 第${state.day}天</span>
   </div>`;
