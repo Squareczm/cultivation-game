@@ -31,15 +31,16 @@ body {
   align-items: center;
   justify-content: center;
   font-family: 'Zpix', 'Press Start 2P', 'VT323', monospace;
-  overflow: hidden;
+  overflow: auto;
   color: #ffb000;
+  padding: 12px 0;
 }
 
 .machine {
-  width: 420px;
-  max-width: 95vw;
+  width: 500px;
+  max-width: 96vw;
   background: #2a2a3e;
-  padding: 24px 20px 28px;
+  padding: 20px 20px 24px;
   position: relative;
   box-shadow:
     0 0 0 2px #4a4a5e,
@@ -79,20 +80,24 @@ body {
 
 .screen {
   background: #0a0a0a;
-  padding: 14px;
-  min-height: 360px;
-  max-height: 360px;
-  overflow-y: auto;
+  padding: 14px 16px;
+  min-height: 560px;
+  max-height: 560px;
+  overflow: hidden;
   position: relative;
   color: #ffb000;
   font-family: 'Zpix', 'VT323', monospace;
   font-size: 14px;
-  line-height: 1.8;
+  line-height: 1.6;
 }
 
-.screen::-webkit-scrollbar { width: 4px; }
-.screen::-webkit-scrollbar-track { background: transparent; }
-.screen::-webkit-scrollbar-thumb { background: #996600; }
+@media (max-height: 720px) {
+  .screen { min-height: 500px; max-height: 500px; }
+}
+
+@media (max-width: 420px) {
+  .screen { padding: 12px; font-size: 13px; }
+}
 
 .screen::before {
   content: '';
@@ -120,8 +125,8 @@ body {
   font-size: 9px;
   color: #cc8800;
   border-bottom: 2px dotted #996600;
-  padding-bottom: 8px;
-  margin-bottom: 10px;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
   letter-spacing: 1px;
 }
 
@@ -146,7 +151,7 @@ body {
 
 .scene-title {
   text-align: center;
-  margin: 8px 0;
+  margin: 3px 0;
   font-size: 13px;
   color: #cc8800;
 }
@@ -155,29 +160,29 @@ body {
   text-align: center;
   font-size: 12px;
   color: #996600;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .narrative {
-  margin: 8px 0 12px;
+  margin: 5px 0 6px;
   font-size: 13px;
-  line-height: 1.8;
+  line-height: 1.55;
 }
 
 .divider {
   text-align: center;
   color: #ffb00040;
-  margin: 6px 0;
-  font-size: 12px;
+  margin: 3px 0;
+  font-size: 11px;
   letter-spacing: 2px;
 }
 
 .choice {
-  margin: 6px 0;
+  margin: 3px 0;
   font-size: 13px;
   cursor: pointer;
-  padding: 4px 6px;
-  line-height: 1.5;
+  padding: 3px 5px;
+  line-height: 1.4;
   color: #ffb000;
 }
 
@@ -194,19 +199,19 @@ body {
 }
 
 .choice .tag {
-  display: block;
-  font-size: 11px;
+  display: inline;
+  font-size: 10px;
   color: #996600;
-  margin-top: 2px;
-  padding-left: 20px;
+  margin-left: 8px;
+  white-space: nowrap;
 }
 
 .choice.selected .tag { color: #331a00; }
 
 .result-text {
-  margin: 8px 0;
+  margin: 5px 0;
   font-size: 13px;
-  line-height: 1.8;
+  line-height: 1.55;
 }
 
 .result-text .gain { color: #44dd44; }
@@ -219,7 +224,7 @@ body {
   font-family: 'Press Start 2P', 'Zpix', monospace;
   font-size: 9px;
   color: #996600;
-  margin-top: 12px;
+  margin-top: 8px;
   letter-spacing: 1px;
   animation: blink 1s steps(2) infinite;
 }
@@ -332,9 +337,9 @@ body {
 .realm-up {
   text-align: center;
   font-family: 'Press Start 2P', 'Zpix', monospace;
-  font-size: 14px;
+  font-size: 13px;
   color: #ffdd44;
-  margin: 16px 0;
+  margin: 8px 0;
   letter-spacing: 2px;
   animation: pixelblink 0.5s steps(2) infinite;
   text-shadow:
@@ -358,9 +363,9 @@ body {
 .ending-title {
   text-align: center;
   font-family: 'Press Start 2P', 'Zpix', monospace;
-  font-size: 16px;
-  margin: 14px 0;
-  letter-spacing: 4px;
+  font-size: 15px;
+  margin: 8px 0 6px;
+  letter-spacing: 3px;
   color: #ffdd44;
   text-shadow:
     2px 0 0 #996600,
@@ -370,8 +375,8 @@ body {
 
 .ending-summary {
   font-size: 12px;
-  line-height: 1.8;
-  margin: 12px 0;
+  line-height: 1.55;
+  margin: 6px 0;
 }
 
 .items-list {
